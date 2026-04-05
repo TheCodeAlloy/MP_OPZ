@@ -129,6 +129,35 @@
     .success-screen p { color: var(--gray-600); line-height: 1.65; max-width: 420px; margin: 0 auto; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
     @keyframes spin   { to { transform:rotate(360deg); } }
+
+    /* Tooltip */
+    .tooltip-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+    .tooltip-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 17px; height: 17px; border-radius: 50%;
+      background: var(--blue-mid); color: #fff;
+      font-size: 11px; font-weight: 700; font-style: normal;
+      cursor: pointer; flex-shrink: 0; user-select: none;
+      line-height: 1;
+    }
+    .tooltip-box {
+      display: none;
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937; color: #f9fafb;
+      font-size: 12px; font-weight: 400; line-height: 1.5;
+      padding: 10px 13px; border-radius: 8px;
+      width: 260px; z-index: 100;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+      pointer-events: none;
+    }
+    .tooltip-box::after {
+      content: ''; position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent; border-top-color: #1f2937;
+    }
+    .tooltip-wrap:hover .tooltip-box,
+    .tooltip-wrap.open .tooltip-box { display: block; }
     @media (max-width: 600px) {
       .two-col { grid-template-columns: 1fr; }
       .col.left  { padding-right: 0; border-right: none; border-bottom: 1px solid var(--gray-200); padding-bottom: 16px; margin-bottom: 16px; }
@@ -235,6 +264,23 @@
             <span class="suffix">Kč</span>
           </div>
         </div>
+        <div class="field">
+          <label>
+            <span class="tooltip-wrap">
+              Počet vyloučených dnů
+              <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+              <span class="tooltip-box">
+                <strong>Vyloučené pracovní dny:</strong><br/>
+                • Dny před začátkem nebo po ukončení pracovněprávního vztahu (pokud nejde o první/poslední den v měsíci)<br/>
+                • Dny čerpání nemocenského (PN delší než 14 dní), ošetřovného, dlouhodobého ošetřovného nebo PPM<br/>
+                • Dny překážek v práci bez náhrady mzdy vč. neplaceného volna<br/>
+                • Dny neomluvené absence
+              </span>
+            </span>
+          </label>
+          <input type="number" id="vyloucene-dny" placeholder="0" min="0" max="31" step="1" inputmode="numeric" />
+        </div>
+
         <div class="field">
           <label>Součet (automaticky)</label>
           <div class="total-box">
@@ -344,7 +390,8 @@ async function submitForm() {
     idZamestnanec:employerData.idZamestnanec || '',
     email:        employerData.email         || '',
     mesicCislo: mesicNum, rok,
-    hrubaMzda: hruba, odvodPojistneho: odvod, nahradaPN: nahrada, soucet
+    hrubaMzda: hruba, odvodPojistneho: odvod, nahradaPN: nahrada, soucet,
+    vylouceneDny: parseInt(document.getElementById('vyloucene-dny').value) || 0
   };
 
   setSubmitLoading(true);
@@ -374,7 +421,7 @@ async function submitForm() {
 // Reset
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('Opravdu chcete vymazat vyplněná pole?')) return;
-  ['hruba-mzda','odvod','nahrada-pn'].forEach(id => {
+  ['hruba-mzda','odvod','nahrada-pn','vyloucene-dny'].forEach(id => {
     document.getElementById(id).value = '';
     document.getElementById(id).classList.remove('invalid');
   });
@@ -394,6 +441,17 @@ function setSubmitLoading(on) {
   document.getElementById('submit-label').style.display   = on ? 'none' : 'inline';
   document.getElementById('submit-spinner').style.display = on ? 'block' : 'none';
 }
+function toggleTooltip(icon) {
+  const wrap = icon.closest('.tooltip-wrap');
+  wrap.classList.toggle('open');
+  document.addEventListener('click', function handler(e) {
+    if (!wrap.contains(e.target)) {
+      wrap.classList.remove('open');
+      document.removeEventListener('click', handler);
+    }
+  });
+}
+
 async function apiFetch(params) {
   const url = new URL(APPS_SCRIPT_URL);
   Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
