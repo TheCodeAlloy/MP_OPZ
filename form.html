@@ -688,32 +688,114 @@ async function fileToBase64(file) {
 }
 
 // ============================================================
-//  Generování PDF z formuláře
+//  Generování PDF — čistá šablona (ne screenshot stránky)
 // ============================================================
 async function generateFormPDF(ico, obdobiStr) {
-  // Dočasně skryjeme interaktivní prvky pro čistší PDF
-  // V PDF skryjeme jen interaktivní prvky — prohlášení a formulář zůstanou
-  const hideIds = ['form-footer', 'msg', 'drop-zone', 'file-info', 'upload-alt'];
-  const origDisplay = {};
-  hideIds.forEach(id => { const el = document.getElementById(id); if (el) { origDisplay[id] = el.style.display; el.style.display = 'none'; } });
-  // Upload section zobrazíme ale jako info (bez interaktivních prvků)
-  const uploadLabel = document.querySelector('.upload-label-row');
-  const origUlDisplay = uploadLabel ? uploadLabel.parentElement.style.display : '';
+  const d = employerData;
+  const hruba   = document.getElementById('hruba-mzda').value || '0';
+  const odvod   = document.getElementById('odvod').value || '0';
+  const nahrada = document.getElementById('nahrada-pn').value || '0';
+  const soucet  = document.getElementById('soucet-value').textContent;
+  const vylDny  = document.getElementById('vyloucene-dny').value || '0';
+  const mesicEl = document.getElementById('mesic');
+  const mesicTxt= mesicEl.options[mesicEl.selectedIndex]?.text || '';
+  const rok     = document.getElementById('rok').value || '';
 
-  const element = document.getElementById('form-card');
+  const tpl = document.createElement('div');
+  tpl.style.cssText = 'width:180mm;padding:0;margin:0;font-family:Arial,sans-serif;font-size:10pt;color:#111;background:#fff;';
+  tpl.innerHTML = `
+    <div style="background:#003399;color:#fff;padding:14px 18px;margin-bottom:16px;">
+      <div style="font-size:12pt;font-weight:bold;margin-bottom:3px;">Podpora zapojení osob ukrajinské národnosti na trhu práce II.</div>
+      <div style="font-size:8pt;opacity:.8;">CZ.03.01.01/00/24_078/0005068</div>
+    </div>
+    <div style="text-align:center;font-size:9pt;color:#444;margin-bottom:16px;">
+      Vyúčtování mzdových nákladů projektu ESF &nbsp;|&nbsp; ${mesicTxt} ${rok}
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9.5pt;">
+      <tr style="background:#f0f4ff;">
+        <td colspan="4" style="padding:6px 10px;font-weight:bold;font-size:9pt;color:#003399;letter-spacing:.05em;text-transform:uppercase;border:1px solid #ccc;">Zaměstnavatel</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px;width:140px;color:#666;border:1px solid #ddd;">Název</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${d.employerName||'—'}</td>
+        <td style="padding:5px 10px;width:120px;color:#666;border:1px solid #ddd;">IČ</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${d.ico||'—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Bankovní účet</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${d.accountNumber||'—'}</td>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Číslo dohody</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${d.cisloDohody||'—'}</td>
+      </tr>
+      <tr style="background:#f0f4ff;">
+        <td colspan="4" style="padding:6px 10px;font-weight:bold;font-size:9pt;color:#003399;letter-spacing:.05em;text-transform:uppercase;border:1px solid #ccc;">Zaměstnanec</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Jméno a příjmení</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${d.zamestnanec||'—'}</td>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Projektové ID</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${d.idZamestnanec||'—'}</td>
+      </tr>
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9.5pt;">
+      <tr style="background:#f0f4ff;">
+        <td colspan="4" style="padding:6px 10px;font-weight:bold;font-size:9pt;color:#003399;letter-spacing:.05em;text-transform:uppercase;border:1px solid #ccc;">Mzdové údaje — ${mesicTxt} ${rok}</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px;width:180px;color:#666;border:1px solid #ddd;">Vyloučené pracovní dny</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;" colspan="3">${vylDny}</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Hrubá mzda</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${Number(hruba).toLocaleString('cs-CZ',{minimumFractionDigits:2})} Kč</td>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Odvod pojistného</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${Number(odvod).toLocaleString('cs-CZ',{minimumFractionDigits:2})} Kč</td>
+      </tr>
+      <tr>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;">Náhrada mzdy za PN</td>
+        <td style="padding:5px 10px;font-weight:bold;border:1px solid #ddd;">${Number(nahrada).toLocaleString('cs-CZ',{minimumFractionDigits:2})} Kč</td>
+        <td style="padding:5px 10px;color:#666;border:1px solid #ddd;"></td>
+        <td style="padding:5px 10px;border:1px solid #ddd;"></td>
+      </tr>
+      <tr style="background:#e8f0fe;">
+        <td style="padding:7px 10px;font-weight:bold;color:#003399;border:1px solid #bcd;">CELKEM</td>
+        <td style="padding:7px 10px;font-weight:bold;font-size:11pt;color:#003399;border:1px solid #bcd;" colspan="3">${soucet}</td>
+      </tr>
+    </table>
+
+    <div style="border:1px solid #f59e0b;background:#fffbeb;padding:10px 12px;margin-bottom:10px;font-size:8.5pt;color:#78350f;line-height:1.5;">
+      <div style="font-weight:bold;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Upozornění pro zaměstnavatele</div>
+      V souladu s článkem II. bod 5. dohody se do výkazu uvádí řádně vynakládané prostředky na hrubou mzdu (včetně náhrady mzdy za dočasnou PN/karanténu) za uvedený měsíc a řádně odváděné pojistné na sociální zabezpečení a příspěvek na státní politiku zaměstnanosti a pojistné na veřejné zdravotní pojištění, které zaměstnavatel z vyměřovacího základu zaměstnance za uvedený měsíc odvádí. Řádně vynakládanými prostředky na hrubou mzdu se rozumí vyplacení mzdy nebo platu v souladu s ustanovením § 141 odst. 1 zákoníku práce, tj. nejpozději do konce kalendářního měsíce následujícího po měsíci, ve kterém vzniklo zaměstnanci právo na mzdu nebo plat nebo některou jejich složku. Řádně odváděným pojistným na sociální zabezpečení a příspěvek na státní politiku zaměstnanosti se rozumí odvedení pojistného v souladu s ustanovením § 9 odst. 1 zákona o sociálním pojištění, tj. nejpozději do dvacátého dne kalendářního měsíce následujícího po kalendářním měsíci, za který je pojistné odváděno. Řádně odváděným pojistným na veřejné zdravotní pojištění se rozumí odvedení pojistného v souladu s ustanovením § 5 odst. 1 zákona o zdravotním pojištění, tj. nejpozději do dvacátého dne kalendářního měsíce následujícího po kalendářním měsíci, za který je pojistné odváděno.
+      <br/><br/>Pokud zaměstnavatel ve výkazu uvede náklady, které nebyly vynaloženy ve výše uvedených termínech, je povinen vrátit příspěvek podle článku VI. bod 2. dohody.
+    </div>
+
+    <div style="border:1px solid #bfdbfe;background:#eff6ff;padding:10px 12px;margin-bottom:14px;font-size:8.5pt;color:#1e3a5f;line-height:1.5;">
+      <div style="font-weight:bold;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;color:#003399;">Prohlášení zaměstnavatele</div>
+      Na tu část mzdových nákladů, která je hrazena ze mzdového příspěvku, nebudu nárokovat krytí z peněžních prostředků poskytovaných ze státního rozpočtu, rozpočtu územních samosprávných celků, vyšších územních samosprávných celků, Evropských strukturálních a investičních fondů, popř. z jiných programů a projektů EU, ani jiných veřejných zdrojů.
+      <br/><br/>Prohlašuji, že výše uvedené údaje jsou pravdivé a že hrubá mzda za uvedený měsíc a v uvedené výši byla zaměstnanci zúčtována k výplatě a po zákonných srážkách vyplacena. Dále prohlašuji, že částka pojistného na sociální zabezpečení, příspěvku na státní politiku zaměstnanosti a pojistného na veřejné zdravotní pojištění, které zaměstnavatel za sebe odvádí z vyměřovacího základu zaměstnance, uvedená v tomto vyúčtování, byla odvedena.
+    </div>
+
+    <div style="border-top:2px solid #003399;padding-top:10px;font-size:8.5pt;color:#444;">
+      <div style="margin-bottom:6px;">✅ Odesláním potvrzuji, že všechny výše uvedené údaje jsou pravdivé a úplné a že jsem oprávněn/a jednat jménem zaměstnavatele.</div>
+      <div style="color:#888;">Datum odeslání: ${new Date().toLocaleDateString('cs-CZ')} ${new Date().toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `;
+
+  document.body.appendChild(tpl);
+
   const opt = {
-    margin:      [8, 8, 8, 8],
+    margin:      10,
     filename:    'Vykaz_' + String(ico).replace(/\D/g,'') + '_' + obdobiStr.replace('/','_') + '.pdf',
-    image:       { type: 'jpeg', quality: 0.92 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
+    image:       { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+  const pdfBlob = await html2pdf().set(opt).from(tpl).outputPdf('blob');
+  document.body.removeChild(tpl);
 
-  hideIds.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = origDisplay[id] || ''; });
-
-  // Převod blobu na base64
   return new Promise((resolve, reject) => {
     const r = new FileReader();
     r.onload = e => resolve(e.target.result.split(',')[1]);
