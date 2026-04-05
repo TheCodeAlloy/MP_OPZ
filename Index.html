@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Přihlášení — Mzdové příspěvky</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 24px 16px;
+    }
+
+    /* ── Karta ── */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(26,86,219,0.10);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ── Logo / ikona ── */
+    .icon-wrap {
+      width: 64px; height: 64px;
+      background: #eff6ff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .icon-wrap svg { width: 32px; height: 32px; }
+
+    /* ── Nadpisy ── */
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #111827;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 0.92rem;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .subtitle strong { color: #374151; }
+
+    /* ── OTP vstup ── */
+    .otp-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .otp-row input {
+      width: 48px; height: 58px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-align: center;
+      border: 2px solid #d1d5db;
+      border-radius: 10px;
+      color: #111827;
+      background: #f9fafb;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      /* Mobilní klávesnice — číslice */
+      inputmode: numeric;
+      pattern: "[0-9]*";
+    }
+    .otp-row input:focus {
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,.15);
+      background: #fff;
+    }
+    .otp-row input.filled  { border-color: #1a56db; background: #eff6ff; }
+    .otp-row input.error   { border-color: #ef4444; background: #fef2f2; }
+
+    /* ── Tlačítka ── */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .18s, opacity .18s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: #1a56db; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #1649b0; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-ghost {
+      background: none;
+      color: #1a56db;
+      font-size: .9rem;
+      padding: 10px;
+      margin-top: 4px;
+    }
+    .btn-ghost:hover:not(:disabled) { text-decoration: underline; }
+    .btn-ghost:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Stavové zprávy ── */
+    .msg {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: .9rem;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .msg.error   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; display: block; }
+    .msg.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; display: block; }
+    .msg.info    { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; display: block; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: none;
+      width: 22px; height: 22px;
+      border: 3px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto;
+    }
+    .spinner.dark {
+      border: 3px solid rgba(26,86,219,.2);
+      border-top-color: #1a56db;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Odpočet ── */
+    .countdown {
+      font-size: .82rem;
+      color: #9ca3af;
+      text-align: center;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    /* ── Oddělující čára ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 20px 0;
+    }
+
+    /* ── Responsivita ── */
+    @media (max-width: 400px) {
+      .card { padding: 28px 20px; }
+      .otp-row input { width: 42px; height: 52px; font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+
+  <!-- Ikona -->
+  <div class="icon-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#1a56db" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  </div>
+
+  <h1 id="page-title">Ověření totožnosti</h1>
+  <p class="subtitle" id="page-subtitle">Načítám…</p>
+
+  <!-- Stavová zpráva -->
+  <div class="msg" id="msg"></div>
+
+  <!-- OTP formulář (skrytý dokud se nepošle kód) -->
+  <div id="otp-section" style="display:none;">
+    <div class="otp-row" id="otp-row">
+      <input type="text" inputmode="numeric" maxlength="1" data-idx="0" autocomplete="one-time-code" />
+      <input type="text" inputmode="numeric" maxlength="1" data-idx="1" />
+      <input type="text" inputmode="numeric" maxlength="1" data-idx="2" />
+      <input type="text" inputmode="numeric" maxlength="1" data-idx="3" />
+      <input type="text" inputmode="numeric" maxlength="1" data-idx="4" />
+      <input type="text" inputmode="numeric" maxlength="1" data-idx="5" />
+    </div>
+
+    <button class="btn btn-primary" id="btn-verify" disabled>
+      <span id="verify-label">Ověřit kód</span>
+      <div class="spinner" id="verify-spinner"></div>
+    </button>
+
+    <hr class="divider" />
+
+    <button class="btn btn-ghost" id="btn-resend">
+      <span id="resend-label">Zaslat nový kód</span>
+      <div class="spinner dark" id="resend-spinner"></div>
+    </button>
+    <p class="countdown" id="countdown"></p>
+  </div>
+
+  <!-- Spinner při inicializaci -->
+  <div style="text-align:center;padding:8px 0;" id="init-spinner">
+    <div class="spinner dark" style="display:block;margin:0 auto;"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  KONFIGURACE — vyplňte URL vašeho Apps Script Web App
+// ============================================================
+const APPS_SCRIPT_URL = 'DOPLŇTE_URL_VAŠEHO_APPS_SCRIPT_WEB_APP';
+
+// ============================================================
+//  Stav aplikace
+// ============================================================
+let token         = '';
+let employerName  = '';
+let employerData  = null;   // vyplní se po ověření OTP
+let resendCooldown = 0;
+let cooldownTimer  = null;
+
+// ============================================================
+//  Inicializace po načtení stránky
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Přečti token z URL
+  const params = new URLSearchParams(window.location.search);
+  token = params.get('token') || '';
+
+  if (!token) {
+    showFatalError('Odkaz není platný — chybí přístupový kód.');
+    return;
+  }
+
+  // Automaticky pošli OTP
+  requestOTP();
+
+  // Nastav OTP políčka
+  setupOTPInputs();
+
+  // Tlačítko Ověřit
+  document.getElementById('btn-verify').addEventListener('click', verifyOTP);
+
+  // Tlačítko Nový kód
+  document.getElementById('btn-resend').addEventListener('click', () => {
+    if (resendCooldown > 0) return;
+    requestOTP();
+  });
+});
+
+// ============================================================
+//  Odeslání OTP
+// ============================================================
+async function requestOTP() {
+  setInitLoading(true);
+  clearMsg();
+  setResendLoading(true);
+
+  try {
+    const res  = await apiFetch({ action: 'sendOTP', token });
+    if (!res.success) {
+      showFatalError(res.error || 'Nepodařilo se odeslat kód.');
+      return;
+    }
+
+    employerName = res.employerName || '';
+    document.getElementById('page-title').textContent    = 'Zadejte přihlašovací kód';
+    document.getElementById('page-subtitle').innerHTML   =
+      `Kód jsme odeslali na adresu <strong>${res.maskedEmail}</strong>.<br>
+       Kód je platný 15 minut.`;
+
+    showMsg('info', `📧 Email s kódem byl odeslán.`);
+
+    document.getElementById('otp-section').style.display = 'block';
+    document.getElementById('init-spinner').style.display = 'none';
+
+    // Fokus na první políčko
+    setTimeout(() => document.querySelector('.otp-row input').focus(), 100);
+
+    // Cooldown na opětovné zaslání (60 s)
+    startResendCooldown(60);
+
+  } catch (e) {
+    showFatalError('Chyba připojení. Zkuste obnovit stránku.');
+  } finally {
+    setInitLoading(false);
+    setResendLoading(false);
+  }
+}
+
+// ============================================================
+//  Ověření OTP
+// ============================================================
+async function verifyOTP() {
+  const otp = getOTPValue();
+  if (otp.length !== 6) return;
+
+  setVerifyLoading(true);
+  clearMsg();
+
+  try {
+    const res = await apiFetch({ action: 'verifyOTP', token, otp });
+
+    if (!res.success) {
+      showMsg('error', res.error || 'Nesprávný kód.');
+      shakeOTP();
+      clearOTPInputs();
+      document.querySelector('.otp-row input').focus();
+      document.getElementById('btn-verify').disabled = true;
+      return;
+    }
+
+    // Úspěch — ulož data a přejdi na formulář
+    employerData = res;
+    showMsg('success', '✅ Ověření proběhlo úspěšně. Přesměrovávám na formulář…');
+
+    setTimeout(() => goToForm(res), 1200);
+
+  } catch (e) {
+    showMsg('error', 'Chyba připojení. Zkuste to znovu.');
+  } finally {
+    setVerifyLoading(false);
+  }
+}
+
+// ============================================================
+//  Přechod na formulář
+// ============================================================
+function goToForm(data) {
+  // Data se předají přes sessionStorage (bezpečnější než URL)
+  sessionStorage.setItem('employerData', JSON.stringify(data));
+  sessionStorage.setItem('authToken', token);
+  window.location.href = 'form.html';
+}
+
+// ============================================================
+//  OTP políčka — logika přepínání focus, paste atd.
+// ============================================================
+function setupOTPInputs() {
+  const inputs = document.querySelectorAll('.otp-row input');
+
+  inputs.forEach((inp, idx) => {
+    // Zadání číslice
+    inp.addEventListener('input', (e) => {
+      const val = e.target.value.replace(/\D/g, '');
+      inp.value = val ? val[val.length - 1] : '';
+      inp.classList.toggle('filled', !!inp.value);
+
+      if (inp.value && idx < inputs.length - 1) {
+        inputs[idx + 1].focus();
+      }
+      updateVerifyButton();
+    });
+
+    // Backspace — přesun zpět
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !inp.value && idx > 0) {
+        inputs[idx - 1].focus();
+        inputs[idx - 1].value = '';
+        inputs[idx - 1].classList.remove('filled');
+        updateVerifyButton();
+      }
+    });
+
+    // Paste celého kódu
+    inp.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData)
+        .getData('text').replace(/\D/g, '').substring(0, 6);
+      pasted.split('').forEach((ch, i) => {
+        if (inputs[i]) {
+          inputs[i].value = ch;
+          inputs[i].classList.add('filled');
+        }
+      });
+      const next = inputs[Math.min(pasted.length, inputs.length - 1)];
+      next.focus();
+      updateVerifyButton();
+    });
+  });
+}
+
+function getOTPValue() {
+  return [...document.querySelectorAll('.otp-row input')]
+    .map(i => i.value).join('');
+}
+
+function clearOTPInputs() {
+  document.querySelectorAll('.otp-row input').forEach(i => {
+    i.value = '';
+    i.classList.remove('filled', 'error');
+  });
+}
+
+function shakeOTP() {
+  const row = document.getElementById('otp-row');
+  document.querySelectorAll('.otp-row input').forEach(i => i.classList.add('error'));
+  row.style.animation = 'none';
+  row.offsetHeight; // reflow
+  row.style.animation = '';
+}
+
+function updateVerifyButton() {
+  const full = getOTPValue().length === 6;
+  document.getElementById('btn-verify').disabled = !full;
+}
+
+// ============================================================
+//  Cooldown pro „Zaslat nový kód"
+// ============================================================
+function startResendCooldown(seconds) {
+  resendCooldown = seconds;
+  const btn       = document.getElementById('btn-resend');
+  const countdown = document.getElementById('countdown');
+  btn.disabled = true;
+
+  clearInterval(cooldownTimer);
+  cooldownTimer = setInterval(() => {
+    resendCooldown--;
+    countdown.textContent = resendCooldown > 0
+      ? `Nový kód lze zaslat za ${resendCooldown} s`
+      : '';
+    if (resendCooldown <= 0) {
+      clearInterval(cooldownTimer);
+      btn.disabled = false;
+    }
+  }, 1000);
+}
+
+// ============================================================
+//  UI pomocné funkce
+// ============================================================
+function showMsg(type, text) {
+  const el = document.getElementById('msg');
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+function clearMsg() {
+  const el = document.getElementById('msg');
+  el.className = 'msg';
+  el.textContent = '';
+}
+function showFatalError(text) {
+  document.getElementById('init-spinner').style.display = 'none';
+  document.getElementById('page-title').textContent    = 'Chyba přístupu';
+  document.getElementById('page-subtitle').textContent = '';
+  showMsg('error', text);
+}
+function setInitLoading(on) {
+  document.getElementById('init-spinner').style.display = on ? 'block' : 'none';
+}
+function setVerifyLoading(on) {
+  document.getElementById('btn-verify').disabled = on;
+  document.getElementById('verify-label').style.display  = on ? 'none' : 'inline';
+  document.getElementById('verify-spinner').style.display = on ? 'block' : 'none';
+}
+function setResendLoading(on) {
+  document.getElementById('btn-resend').disabled = on;
+  document.getElementById('resend-label').style.display  = on ? 'none' : 'inline';
+  document.getElementById('resend-spinner').style.display = on ? 'block' : 'none';
+}
+
+// ============================================================
+//  Volání Apps Script API
+// ============================================================
+async function apiFetch(params) {
+  const url = new URL(APPS_SCRIPT_URL);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const response = await fetch(url.toString(), { redirect: 'follow' });
+  if (!response.ok) throw new Error('HTTP ' + response.status);
+  return response.json();
+}
+</script>
+</body>
+</html>
