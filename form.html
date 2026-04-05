@@ -41,6 +41,8 @@
       overflow: hidden;
       animation: fadeUp .4s ease both;
     }
+
+    /* ── Hlavička ── */
     .form-header {
       background: var(--blue);
       padding: 20px 28px;
@@ -52,6 +54,8 @@
     .project-title { color: #fff; font-family: 'Source Serif 4', serif; font-size: .98rem; font-weight: 600; line-height: 1.4; }
     .project-code  { color: rgba(255,255,255,.6); font-size: .76rem; margin-top: 4px; }
     .eu-flag { width: 60px; height: 40px; border: 1px solid rgba(255,255,255,.25); border-radius: 3px; flex-shrink: 0; }
+
+    /* ── Tělo ── */
     .form-body { padding: 28px 28px 0; }
     .section-label {
       font-size: .7rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
@@ -62,6 +66,8 @@
     .col { padding-bottom: 24px; }
     .col.left  { padding-right: 24px; border-right: 1px solid var(--gray-200); }
     .col.right { padding-left: 24px; }
+
+    /* ── Pole ── */
     .field { margin-bottom: 14px; }
     .field label { display: block; font-size: .8rem; font-weight: 500; color: var(--gray-600); margin-bottom: 4px; }
     .field label .req { color: var(--blue-mid); margin-left: 2px; }
@@ -99,69 +105,47 @@
     .total-box .tv { font-size: 1.08rem; font-weight: 700; color: var(--blue); }
     .formula-note { font-size: .75rem; color: var(--gray-400); margin-top: 5px; font-style: italic; }
     .divider { border: none; border-top: 1px solid var(--gray-200); margin: 4px 0 18px; }
-    .msg { display: none; padding: 13px 18px; border-radius: 8px; font-size: .88rem; line-height: 1.5; margin: 0 28px 20px; }
-    .msg.error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #fecaca; display: block; }
-    .msg.success { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; display: block; }
-    .form-footer {
-      padding: 18px 28px 28px; border-top: 1px solid var(--gray-200);
-      display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
-    }
-    .btn {
-      padding: 12px 28px; font-size: .93rem; font-family: 'DM Sans', sans-serif;
-      font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer;
-      transition: background .16s, transform .1s;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
-    .btn:active { transform: scale(.98); }
-    .btn-primary { background: var(--blue); color: #fff; min-width: 180px; justify-content: center; }
-    .btn-primary:hover:not(:disabled) { background: #002277; }
-    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-secondary { background: var(--gray-100); color: var(--gray-600); }
-    .btn-secondary:hover { background: var(--gray-200); }
-    .spinner {
-      width: 17px; height: 17px;
-      border: 2.5px solid rgba(255,255,255,.35); border-top-color: #fff;
-      border-radius: 50%; animation: spin .7s linear infinite; display: none;
-    }
-    .success-screen { display: none; padding: 48px 28px; text-align: center; }
-    .success-screen .check { width: 72px; height: 72px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; }
-    .success-screen h2 { font-family: 'Source Serif 4', serif; font-size: 1.5rem; color: var(--gray-800); margin-bottom: 12px; }
-    .success-screen p { color: var(--gray-600); line-height: 1.65; max-width: 420px; margin: 0 auto; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes spin   { to { transform:rotate(360deg); } }
 
-    /* Upload zóna */
-    .upload-section {
-      margin: 0 28px;
-      padding: 20px 0;
-      border-top: 1px solid var(--gray-200);
+    /* ── Tooltip ── */
+    .tooltip-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+    .tooltip-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 17px; height: 17px; border-radius: 50%;
+      background: var(--blue-mid); color: #fff;
+      font-size: 11px; font-weight: 700; font-style: normal;
+      cursor: pointer; flex-shrink: 0; user-select: none; line-height: 1;
     }
+    .tooltip-box {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937; color: #f9fafb;
+      font-size: 12px; font-weight: 400; line-height: 1.5;
+      padding: 10px 13px; border-radius: 8px;
+      width: 260px; z-index: 100;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    }
+    .tooltip-box::after {
+      content: ''; position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent; border-top-color: #1f2937;
+    }
+    .tooltip-wrap:hover .tooltip-box,
+    .tooltip-wrap.open .tooltip-box { display: block; }
+
+    /* ── Upload ── */
+    .upload-section { margin: 0 28px; padding: 20px 0; border-top: 1px solid var(--gray-200); }
     .upload-label-row {
       display: flex; align-items: center; gap: 6px;
-      font-size: .8rem; font-weight: 500; color: var(--gray-600);
-      margin-bottom: 10px;
+      font-size: .8rem; font-weight: 500; color: var(--gray-600); margin-bottom: 10px;
     }
     .drop-zone {
-      border: 2px dashed var(--gray-200);
-      border-radius: var(--radius);
-      background: var(--gray-50);
-      padding: 28px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .15s, background .15s;
-      position: relative;
+      border: 2px dashed var(--gray-200); border-radius: var(--radius);
+      background: var(--gray-50); padding: 28px 20px; text-align: center;
+      cursor: pointer; transition: border-color .15s, background .15s; position: relative;
     }
-    .drop-zone.drag-over {
-      border-color: var(--blue-mid);
-      background: var(--blue-light);
-    }
-    .drop-zone.has-file {
-      border-color: var(--green);
-      background: var(--green-bg);
-    }
-    .drop-zone input[type=file] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
+    .drop-zone.drag-over { border-color: var(--blue-mid); background: var(--blue-light); }
+    .drop-zone.has-file  { border-color: var(--green);    background: var(--green-bg); }
+    .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
     .drop-zone-icon { font-size: 1.8rem; margin-bottom: 8px; }
     .drop-zone-text { font-size: .9rem; color: var(--gray-600); margin-bottom: 4px; }
     .drop-zone-text strong { color: var(--blue-mid); }
@@ -175,49 +159,57 @@
     .file-info.visible { display: flex; }
     .file-info .remove-file {
       margin-left: auto; cursor: pointer; color: var(--gray-400);
-      font-size: 1rem; line-height: 1; background: none; border: none; padding: 0;
+      font-size: 1rem; background: none; border: none; padding: 0;
     }
     .file-info .remove-file:hover { color: var(--red); }
-    .upload-alt {
-      font-size: .78rem; color: var(--gray-400); margin-top: 8px; text-align: center;
-    }
+    .upload-alt { font-size: .78rem; color: var(--gray-400); margin-top: 8px; text-align: center; }
     .upload-alt a { color: var(--blue-mid); }
 
-    /* Tooltip */
-    .tooltip-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; }
-    .tooltip-icon {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 17px; height: 17px; border-radius: 50%;
-      background: var(--blue-mid); color: #fff;
-      font-size: 11px; font-weight: 700; font-style: normal;
-      cursor: pointer; flex-shrink: 0; user-select: none;
-      line-height: 1;
+    /* ── Zpráva ── */
+    .msg { display: none; padding: 13px 18px; border-radius: 8px; font-size: .88rem; line-height: 1.5; margin: 0 28px 20px; }
+    .msg.error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #fecaca; display: block; }
+    .msg.success { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; display: block; }
+    .msg.info    { background: var(--blue-light); color: var(--blue-mid); border: 1px solid #bfdbfe; display: block; }
+
+    /* ── Patička ── */
+    .form-footer {
+      padding: 18px 28px 28px; border-top: 1px solid var(--gray-200);
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
     }
-    .tooltip-box {
-      display: none;
-      position: absolute; bottom: calc(100% + 8px); left: 50%;
-      transform: translateX(-50%);
-      background: #1f2937; color: #f9fafb;
-      font-size: 12px; font-weight: 400; line-height: 1.5;
-      padding: 10px 13px; border-radius: 8px;
-      width: 260px; z-index: 100;
-      box-shadow: 0 4px 16px rgba(0,0,0,.25);
-      pointer-events: none;
+    .btn {
+      padding: 12px 28px; font-size: .93rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer;
+      transition: background .16s, transform .1s;
+      display: inline-flex; align-items: center; gap: 8px;
     }
-    .tooltip-box::after {
-      content: ''; position: absolute; top: 100%; left: 50%;
-      transform: translateX(-50%);
-      border: 6px solid transparent; border-top-color: #1f2937;
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--blue); color: #fff; min-width: 180px; justify-content: center; }
+    .btn-primary:hover:not(:disabled) { background: #002277; }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-secondary { background: var(--gray-100); color: var(--gray-600); }
+    .btn-secondary:hover { background: var(--gray-200); }
+    .spinner {
+      width: 17px; height: 17px;
+      border: 2.5px solid rgba(255,255,255,.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin .7s linear infinite; display: none;
     }
-    .tooltip-wrap:hover .tooltip-box,
-    .tooltip-wrap.open .tooltip-box { display: block; }
+
+    /* ── Úspěch ── */
+    .success-screen { display: none; padding: 48px 28px; text-align: center; }
+    .success-screen .check { width: 72px; height: 72px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; }
+    .success-screen h2 { font-family: 'Source Serif 4', serif; font-size: 1.5rem; color: var(--gray-800); margin-bottom: 12px; }
+    .success-screen p { color: var(--gray-600); line-height: 1.65; max-width: 420px; margin: 0 auto; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes spin   { to { transform:rotate(360deg); } }
+
     @media (max-width: 600px) {
       .two-col { grid-template-columns: 1fr; }
       .col.left  { padding-right: 0; border-right: none; border-bottom: 1px solid var(--gray-200); padding-bottom: 16px; margin-bottom: 16px; }
       .col.right { padding-left: 0; }
       .form-body { padding: 20px 16px 0; }
       .form-footer { padding: 16px; }
-      .msg { margin: 0 16px 16px; }
+      .msg, .upload-section { margin-left: 16px; margin-right: 16px; }
     }
   </style>
 </head>
@@ -225,6 +217,7 @@
 <div class="wrapper">
 <div class="form-card" id="form-card">
 
+  <!-- HLAVIČKA -->
   <div class="form-header">
     <div>
       <div class="project-title">Podpora zapojení osob ukrajinské národnosti na trhu práce II.</div>
@@ -249,10 +242,11 @@
     </svg>
   </div>
 
+  <!-- TĚLO -->
   <div class="form-body" id="form-body">
     <div class="two-col">
 
-      <!-- LEVÝ sloupec — předvyplněno -->
+      <!-- ── LEVÝ SLOUPEC: předvyplněno ── -->
       <div class="col left">
         <p class="section-label">Zaměstnavatel</p>
         <div class="field"><label>Název zaměstnavatele</label><div class="prefilled" id="disp-name">—</div></div>
@@ -265,25 +259,25 @@
         <div class="field"><label>Projektové ID zaměstnance</label><div class="prefilled" id="disp-id">—</div></div>
       </div>
 
-      <!-- PRAVÝ sloupec — vyplňuje zaměstnavatel -->
+      <!-- ── PRAVÝ SLOUPEC: vyplňuje zaměstnavatel ── -->
       <div class="col right">
         <p class="section-label">Období</p>
         <div class="field">
           <label>Měsíc <span class="req">*</span></label>
           <select id="mesic">
             <option value="">— vyberte měsíc —</option>
-            <option value="01" data-nazev="Leden">Leden</option>
-            <option value="02" data-nazev="Únor">Únor</option>
-            <option value="03" data-nazev="Březen">Březen</option>
-            <option value="04" data-nazev="Duben">Duben</option>
-            <option value="05" data-nazev="Květen">Květen</option>
-            <option value="06" data-nazev="Červen">Červen</option>
-            <option value="07" data-nazev="Červenec">Červenec</option>
-            <option value="08" data-nazev="Srpen">Srpen</option>
-            <option value="09" data-nazev="Září">Září</option>
-            <option value="10" data-nazev="Říjen">Říjen</option>
-            <option value="11" data-nazev="Listopad">Listopad</option>
-            <option value="12" data-nazev="Prosinec">Prosinec</option>
+            <option value="01">Leden</option>
+            <option value="02">Únor</option>
+            <option value="03">Březen</option>
+            <option value="04">Duben</option>
+            <option value="05">Květen</option>
+            <option value="06">Červen</option>
+            <option value="07">Červenec</option>
+            <option value="08">Srpen</option>
+            <option value="09">Září</option>
+            <option value="10">Říjen</option>
+            <option value="11">Listopad</option>
+            <option value="12">Prosinec</option>
           </select>
         </div>
         <div class="field">
@@ -294,8 +288,28 @@
             <option value="2027">2027</option>
           </select>
         </div>
+
+        <!-- VYLOUČENÉ DNY — přesunuto sem, nad mzdové údaje -->
+        <div class="field">
+          <label>
+            <span class="tooltip-wrap">
+              Počet vyloučených dnů
+              <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+              <span class="tooltip-box">
+                <strong>Vyloučené pracovní dny:</strong><br/>
+                • Dny před začátkem nebo po ukončení pracovněprávního vztahu (pokud nejde o první/poslední den v měsíci)<br/>
+                • Dny čerpání nemocenského (PN delší než 14 dní), ošetřovného, dlouhodobého ošetřovného nebo PPM<br/>
+                • Dny překážek v práci bez náhrady mzdy vč. neplaceného volna<br/>
+                • Dny neomluvené absence
+              </span>
+            </span>
+          </label>
+          <input type="number" id="vyloucene-dny" placeholder="0" min="0" max="31" step="1" inputmode="numeric" />
+        </div>
+
         <hr class="divider" />
         <p class="section-label">Mzdové údaje</p>
+
         <div class="field">
           <label>Hrubá mzda <span class="req">*</span></label>
           <div class="input-kc">
@@ -318,23 +332,6 @@
           </div>
         </div>
         <div class="field">
-          <label>
-            <span class="tooltip-wrap">
-              Počet vyloučených dnů
-              <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
-              <span class="tooltip-box">
-                <strong>Vyloučené pracovní dny:</strong><br/>
-                • Dny před začátkem nebo po ukončení pracovněprávního vztahu (pokud nejde o první/poslední den v měsíci)<br/>
-                • Dny čerpání nemocenského (PN delší než 14 dní), ošetřovného, dlouhodobého ošetřovného nebo PPM<br/>
-                • Dny překážek v práci bez náhrady mzdy vč. neplaceného volna<br/>
-                • Dny neomluvené absence
-              </span>
-            </span>
-          </label>
-          <input type="number" id="vyloucene-dny" placeholder="0" min="0" max="31" step="1" inputmode="numeric" />
-        </div>
-
-        <div class="field">
           <label>Součet (automaticky)</label>
           <div class="total-box">
             <span class="tl">Hrubá + Pojistné + Náhrada PN</span>
@@ -344,8 +341,8 @@
         </div>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /two-col -->
+  </div><!-- /form-body -->
 
   <!-- UPLOAD VÝPLATNÍ PÁSKY -->
   <div class="upload-section" id="upload-section">
@@ -355,8 +352,7 @@
         <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
         <span class="tooltip-box" style="width:240px;">
           Přetáhněte nebo vyberte soubor PDF, JPG nebo PNG s výplatní páskou zaměstnance.
-          Výplatní pásku můžete případně zaslat emailem na
-          <strong>info@c1z.cz</strong>.
+          Výplatní pásku můžete případně zaslat emailem na <strong>info@c1z.cz</strong>.
         </span>
       </span>
     </div>
@@ -365,24 +361,23 @@
       <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png"
              onchange="dzFileSelected(this.files[0])" />
       <div class="drop-zone-icon">📎</div>
-      <div class="drop-zone-text">
-        <strong>Přetáhněte soubor sem</strong> nebo klikněte pro výběr
-      </div>
+      <div class="drop-zone-text"><strong>Přetáhněte soubor sem</strong> nebo klikněte pro výběr</div>
       <div class="drop-zone-hint">Podporované formáty: PDF, JPG, PNG</div>
     </div>
     <div class="file-info" id="file-info">
       <span>📄</span>
       <span id="file-name">—</span>
-      <button class="remove-file" onclick="removeFile()" title="Odebrat soubor">✕</button>
+      <button class="remove-file" onclick="removeFile()" title="Odebrat">✕</button>
     </div>
     <p class="upload-alt">
-      Nemůžete soubor nahrát?
-      Pošlete výplatní pásku emailem na <a href="mailto:info@c1z.cz">info@c1z.cz</a>.
+      Nemůžete soubor nahrát? Pošlete výplatní pásku emailem na
+      <a href="mailto:info@c1z.cz">info@c1z.cz</a>.
     </p>
   </div>
 
   <div class="msg" id="msg"></div>
 
+  <!-- PATIČKA -->
   <div class="form-footer" id="form-footer">
     <button class="btn btn-secondary" id="btn-reset">Vymazat</button>
     <button class="btn btn-primary" id="btn-submit">
@@ -391,6 +386,7 @@
     </button>
   </div>
 
+  <!-- ÚSPĚŠNÁ OBRAZOVKA -->
   <div class="success-screen" id="success-screen">
     <div class="check">✅</div>
     <h2>Údaje byly odeslány</h2>
@@ -401,21 +397,35 @@
     </p>
   </div>
 
-</div>
-</div>
+</div><!-- /form-card -->
+</div><!-- /wrapper -->
 
 <script>
+// ============================================================
+//  KONFIGURACE
+// ============================================================
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6iOxoSAKYIH4G3h0w-ITnrVcc75eeRKVRX17FBI0x7xrD8Hf7Xq6BFWVWxe-vaQiA/exec';
 
-// Načtení dat po OTP
+// ============================================================
+//  Data ze sessionStorage (nastavena po OTP ověření)
+// ============================================================
 const employerData = JSON.parse(sessionStorage.getItem('employerData') || 'null');
 const authToken    = sessionStorage.getItem('authToken') || '';
-if (!authToken || !employerData) window.location.href = 'index.html';
+if (!authToken || !employerData) {
+  window.location.href = 'index.html';
+}
 
+// Zobraz předvyplněná data
 function setField(id, val) {
   const el = document.getElementById(id);
-  if (val && val.toString().trim()) { el.textContent = val; el.classList.remove('empty'); }
-  else { el.textContent = '—'; el.classList.add('empty'); }
+  if (!el) return;
+  if (val && val.toString().trim()) {
+    el.textContent = val;
+    el.classList.remove('empty');
+  } else {
+    el.textContent = '—';
+    el.classList.add('empty');
+  }
 }
 setField('disp-name',        employerData.employerName);
 setField('disp-ico',         employerData.ico);
@@ -424,9 +434,12 @@ setField('disp-dohoda',      employerData.cisloDohody);
 setField('disp-zamestnanec', employerData.zamestnanec);
 setField('disp-id',          employerData.idZamestnanec);
 
-// Výpočet součtu
-['hruba-mzda','odvod','nahrada-pn'].forEach(id =>
-  document.getElementById(id).addEventListener('input', recalc));
+// ============================================================
+//  Automatický výpočet součtu
+// ============================================================
+['hruba-mzda', 'odvod', 'nahrada-pn'].forEach(id =>
+  document.getElementById(id).addEventListener('input', recalc)
+);
 
 function recalc() {
   const h = parseFloat(document.getElementById('hruba-mzda').value) || 0;
@@ -436,11 +449,13 @@ function recalc() {
     (h + o + n).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kč';
 }
 
-// Validace
+// ============================================================
+//  Validace
+// ============================================================
 function validate() {
   let ok = true;
-  ['mesic','rok','hruba-mzda','odvod'].forEach(id => {
-    const el = document.getElementById(id);
+  ['mesic', 'rok', 'hruba-mzda', 'odvod'].forEach(id => {
+    const el    = document.getElementById(id);
     const empty = !el.value || el.value.trim() === '';
     el.classList.toggle('invalid', empty);
     if (empty) ok = false;
@@ -452,137 +467,29 @@ document.querySelectorAll('input, select').forEach(el => {
   el.addEventListener('change', () => el.classList.remove('invalid'));
 });
 
-// Odeslání
-document.getElementById('btn-submit').addEventListener('click', submitForm);
-
-async function submitForm() {
-  clearMsg();
-  if (!validate()) { showMsg('error', 'Vyplňte prosím všechna povinná pole označená *.'); return; }
-
-  const mesicEl  = document.getElementById('mesic');
-  const mesicNum = mesicEl.value;
-  const rok      = document.getElementById('rok').value;
-  const hruba    = parseFloat(document.getElementById('hruba-mzda').value) || 0;
-  const odvod    = parseFloat(document.getElementById('odvod').value)       || 0;
-  const nahrada  = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
-  const soucet   = hruba + odvod + nahrada;
-
-  const payload = {
-    action: 'submitForm', token: authToken,
-    employerName: employerData.employerName  || '',
-    ico:          employerData.ico           || '',
-    accountNumber:employerData.accountNumber || '',
-    cisloDohody:  employerData.cisloDohody   || '',
-    zamestnanec:  employerData.zamestnanec   || '',
-    idZamestnanec:employerData.idZamestnanec || '',
-    email:        employerData.email         || '',
-    mesicCislo: mesicNum, rok,
-    hrubaMzda: hruba, odvodPojistneho: odvod, nahradaPN: nahrada, soucet,
-    vylouceneDny: parseInt(document.getElementById('vyloucene-dny').value) || 0
-  };
-
-  setSubmitLoading(true);
-  try {
-    // Upload výplatní pásky (pokud byla vybrána)
-    let driveUrl = '';
-    if (selectedFile) {
-      showMsg('info', '⏫ Nahrávám výplatní pásku…');
-      const uploadRes = await uploadFileToGDrive(selectedFile, {
-        ico: employerData.ico || '',
-        obdobiStr: ('0' + mesicNum).slice(-2) + '/' + rok
-      });
-      if (!uploadRes.success) {
-        const pokracovat = confirm(
-          'Nahrání výplatní pásky se nezdařilo: ' + (uploadRes.error || 'neznámá chyba') +
-          '
-
-Chcete odeslat formulář bez výplatní pásky?'
-        );
-        if (!pokracovat) { setSubmitLoading(false); clearMsg(); return; }
-      } else {
-        driveUrl = uploadRes.url || '';
-      }
-    }
-    clearMsg();
-
-    payload.driveUrl = driveUrl;
-
-    const res = await apiFetch(payload);
-    if (!res.success) { showMsg('error', res.error || 'Odeslání se nezdařilo. Zkuste to znovu.'); return; }
-
-    // Dynamický text úspěšné obrazovky
-    const obdobiStr = res.obdobiStr || (('0' + mesicNum).slice(-2) + '/' + rok);
-    document.getElementById('success-text').innerHTML =
-      `Děkujeme za zadání údajů za období <strong>${obdobiStr}</strong>.<br/>
-       Potvrzení jsme odeslali na vaši e-mailovou adresu.<br/>
-       Po kontrole údajů vás budeme informovat o výsledku.`;
-
-    document.getElementById('form-body').style.display    = 'none';
-    document.getElementById('form-footer').style.display  = 'none';
-    document.getElementById('msg').style.display          = 'none';
-    document.getElementById('success-screen').style.display = 'block';
-    sessionStorage.clear();
-  } catch (err) {
-    showMsg('error', 'Chyba připojení. Zkontrolujte internet a zkuste znovu.');
-  } finally {
-    setSubmitLoading(false);
-  }
-}
-
-// Reset
-document.getElementById('btn-reset').addEventListener('click', () => {
-  if (!confirm('Opravdu chcete vymazat vyplněná pole?')) return;
-  ['hruba-mzda','odvod','nahrada-pn','vyloucene-dny'].forEach(id => {
-    document.getElementById(id).value = '';
-    document.getElementById(id).classList.remove('invalid');
-  });
-  document.getElementById('mesic').value = '';
-  document.getElementById('rok').value   = '';
-  recalc(); clearMsg();
-});
-
-function showMsg(type, text) {
-  const el = document.getElementById('msg');
-  el.className = 'msg ' + type; el.textContent = text;
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-function clearMsg() { const el = document.getElementById('msg'); el.className = 'msg'; el.textContent = ''; }
-function setSubmitLoading(on) {
-  document.getElementById('btn-submit').disabled = on;
-  document.getElementById('submit-label').style.display   = on ? 'none' : 'inline';
-  document.getElementById('submit-spinner').style.display = on ? 'block' : 'none';
-}
-// ── Upload logic ──────────────────────────────────────────────
+// ============================================================
+//  Upload výplatní pásky
+// ============================================================
 let selectedFile = null;
 
-function dzDragOver(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.add('drag-over');
-}
-function dzDragLeave(e) {
-  document.getElementById('drop-zone').classList.remove('drag-over');
-}
+function dzDragOver(e)  { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+function dzDragLeave()  { document.getElementById('drop-zone').classList.remove('drag-over'); }
 function dzDrop(e) {
-  e.preventDefault();
-  dzDragLeave(e);
+  e.preventDefault(); dzDragLeave();
   const file = e.dataTransfer.files[0];
   if (file) dzFileSelected(file);
 }
 function dzFileSelected(file) {
   if (!file) return;
-  const allowed = ['application/pdf','image/jpeg','image/jpg','image/png'];
   const ext = file.name.split('.').pop().toLowerCase();
-  if (!allowed.includes(file.type) && !['pdf','jpg','jpeg','png'].includes(ext)) {
-    showMsg('error', 'Nepodporovaný formát souboru. Použijte PDF, JPG nebo PNG.');
+  if (!['pdf','jpg','jpeg','png'].includes(ext)) {
+    showMsg('error', 'Nepodporovaný formát. Použijte PDF, JPG nebo PNG.');
     return;
   }
-  if (file.size > 20 * 1024 * 1024) {
-    showMsg('error', 'Soubor je příliš velký (max. 20 MB).');
-    return;
-  }
+  if (file.size > 20 * 1024 * 1024) { showMsg('error', 'Soubor je příliš velký (max. 20 MB).'); return; }
   selectedFile = file;
   document.getElementById('drop-zone').classList.add('has-file');
-  document.getElementById('file-name').textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+  document.getElementById('file-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
   document.getElementById('file-info').classList.add('visible');
   clearMsg();
 }
@@ -592,7 +499,6 @@ function removeFile() {
   document.getElementById('file-info').classList.remove('visible');
   document.getElementById('file-input').value = '';
 }
-
 async function uploadFileToGDrive(file, meta) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -619,6 +525,114 @@ async function uploadFileToGDrive(file, meta) {
   });
 }
 
+// ============================================================
+//  Odeslání formuláře
+// ============================================================
+document.getElementById('btn-submit').addEventListener('click', submitForm);
+
+async function submitForm() {
+  clearMsg();
+  if (!validate()) { showMsg('error', 'Vyplňte prosím všechna povinná pole označená *.'); return; }
+
+  const mesicNum = document.getElementById('mesic').value;
+  const rok      = document.getElementById('rok').value;
+  const hruba    = parseFloat(document.getElementById('hruba-mzda').value) || 0;
+  const odvod    = parseFloat(document.getElementById('odvod').value)       || 0;
+  const nahrada  = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
+  const soucet   = hruba + odvod + nahrada;
+  const vylouceneDny = parseInt(document.getElementById('vyloucene-dny').value) || 0;
+  const obdobiStr    = ('0' + mesicNum).slice(-2) + '/' + rok;
+
+  const payload = {
+    action:         'submitForm',
+    token:          authToken,
+    employerName:   employerData.employerName  || '',
+    ico:            employerData.ico           || '',
+    accountNumber:  employerData.accountNumber || '',
+    cisloDohody:    employerData.cisloDohody   || '',
+    zamestnanec:    employerData.zamestnanec   || '',
+    idZamestnanec:  employerData.idZamestnanec || '',
+    email:          employerData.email         || '',
+    mesicCislo:     mesicNum,
+    rok,
+    hrubaMzda:      hruba,
+    odvodPojistneho: odvod,
+    nahradaPN:      nahrada,
+    soucet,
+    vylouceneDny,
+    driveUrl:       ''
+  };
+
+  setSubmitLoading(true);
+
+  try {
+    // Nahrání výplatní pásky (nepovinné)
+    if (selectedFile) {
+      showMsg('info', '⏫ Nahrávám výplatní pásku…');
+      try {
+        const uploadRes = await uploadFileToGDrive(selectedFile, { ico: payload.ico, obdobiStr });
+        if (uploadRes.success) {
+          payload.driveUrl = uploadRes.url || '';
+        } else {
+          const pokracovat = window.confirm(
+            'Nahrání výplatní pásky se nezdařilo: ' + (uploadRes.error || 'neznámá chyba') +
+            '\n\nChcete odeslat formulář bez výplatní pásky?'
+          );
+          if (!pokracovat) { setSubmitLoading(false); clearMsg(); return; }
+        }
+      } catch (uploadErr) {
+        const pokracovat = window.confirm(
+          'Nahrání výplatní pásky se nezdařilo (chyba připojení).' +
+          '\n\nChcete odeslat formulář bez výplatní pásky?'
+        );
+        if (!pokracovat) { setSubmitLoading(false); clearMsg(); return; }
+      }
+      clearMsg();
+    }
+
+    const res = await apiFetch(payload);
+    if (!res.success) { showMsg('error', res.error || 'Odeslání se nezdařilo. Zkuste to znovu.'); return; }
+
+    // Úspěšná obrazovka
+    const finalObdobiStr = res.obdobiStr || obdobiStr;
+    document.getElementById('success-text').innerHTML =
+      'Dkujeme za zad\u00e1n\u00ed \u00fadaj\u016f za obdob\u00ed <strong>' + finalObdobiStr + '</strong>.<br/>' +
+      'Potvrzen\u00ed jsme odeslali na Va\u0161i e-mailovou adresu.<br/>' +
+      'Po kontrole \u00fadaj\u016f v\u00e1s budeme informovat o v\u00fdsledku.';
+
+    document.getElementById('form-body').style.display    = 'none';
+    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('form-footer').style.display  = 'none';
+    document.getElementById('msg').style.display          = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    sessionStorage.clear();
+
+  } catch (err) {
+    showMsg('error', 'Chyba p\u0159ipojen\u00ed. Zkontrolujte internet a zkuste znovu.');
+  } finally {
+    setSubmitLoading(false);
+  }
+}
+
+// ============================================================
+//  Reset
+// ============================================================
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!confirm('Opravdu chcete vymazat vyplněná pole?')) return;
+  ['hruba-mzda', 'odvod', 'nahrada-pn', 'vyloucene-dny'].forEach(id => {
+    document.getElementById(id).value = '';
+    document.getElementById(id).classList.remove('invalid');
+  });
+  document.getElementById('mesic').value = '';
+  document.getElementById('rok').value   = '';
+  removeFile();
+  recalc();
+  clearMsg();
+});
+
+// ============================================================
+//  Tooltip
+// ============================================================
 function toggleTooltip(icon) {
   const wrap = icon.closest('.tooltip-wrap');
   wrap.classList.toggle('open');
@@ -630,9 +644,28 @@ function toggleTooltip(icon) {
   });
 }
 
+// ============================================================
+//  UI helpers
+// ============================================================
+function showMsg(type, text) {
+  const el = document.getElementById('msg');
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function clearMsg() { const el = document.getElementById('msg'); el.className = 'msg'; el.textContent = ''; }
+function setSubmitLoading(on) {
+  document.getElementById('btn-submit').disabled = on;
+  document.getElementById('submit-label').style.display   = on ? 'none' : 'inline';
+  document.getElementById('submit-spinner').style.display = on ? 'block' : 'none';
+}
+
+// ============================================================
+//  API volání
+// ============================================================
 async function apiFetch(params) {
   const url = new URL(APPS_SCRIPT_URL);
-  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   const r = await fetch(url.toString(), { redirect: 'follow' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return r.json();
