@@ -238,10 +238,10 @@
         <div class="field">
           <label>Součet (automaticky)</label>
           <div class="total-box">
-            <span class="tl">Hrubá + Pojistné − Náhrada PN</span>
+            <span class="tl">Hrubá + Pojistné + Náhrada PN</span>
             <span class="tv" id="soucet-value">0,00 Kč</span>
           </div>
-          <div class="formula-note">= Hrubá mzda + Odvod pojistného − Náhrada mzdy za PN</div>
+          <div class="formula-note">= Hrubá mzda + Odvod pojistného + Náhrada mzdy za PN</div>
         </div>
       </div>
 
@@ -300,7 +300,7 @@ function recalc() {
   const o = parseFloat(document.getElementById('odvod').value)       || 0;
   const n = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
   document.getElementById('soucet-value').textContent =
-    (h + o - n).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kč';
+    (h + o + n).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kč';
 }
 
 // Validace
@@ -332,7 +332,7 @@ async function submitForm() {
   const hruba    = parseFloat(document.getElementById('hruba-mzda').value) || 0;
   const odvod    = parseFloat(document.getElementById('odvod').value)       || 0;
   const nahrada  = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
-  const soucet   = hruba + odvod - nahrada;
+  const soucet   = hruba + odvod + nahrada;
 
   const payload = {
     action: 'submitForm', token: authToken,
