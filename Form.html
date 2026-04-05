@@ -1,0 +1,429 @@
+// ============================================================
+//  KONFIGURACE — vyplňte před nasazením
+// ============================================================
+const SHEET_ID         = 'DOPLŇTE_ID_VAŠÍ_TABULKY';
+const EMPLOYERS_SHEET  = 'Zaměstnavatelé';
+const ADMINS_SHEET     = 'Admins';
+const ANSWERS_SHEET    = 'Odpovědi';
+const OTP_VALIDITY_MIN = 15;
+
+// Odkaz na tabulku (zobrazí se v notifikačním emailu adminům)
+const SHEET_URL        = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID;
+
+// Název projektu
+const PROJECT_NAME = 'Podpora zapojení osob ukrajinské národnosti na trhu práce II.';
+const PROJECT_CODE = 'CZ.03.01.01/00/24_078/0005068';
+
+// ============================================================
+//  Sloupce listu Zaměstnavatelé (0 = sloupec A)
+// ============================================================
+const COL_TOKEN      = 0;   // A
+const COL_URL        = 1;   // B
+const COL_NAME       = 2;   // C
+const COL_ICO        = 3;   // D
+const COL_ACCOUNT    = 4;   // E
+const COL_EMAIL      = 5;   // F
+const COL_OTP        = 6;   // G
+const COL_OTP_EXPIRY = 7;   // H
+
+// ============================================================
+//  Hlavní vstupní bod Web App
+// ============================================================
+function doGet(e) {
+  const action = e.parameter.action;
+  let result;
+
+  try {
+    switch (action) {
+      case 'sendOTP':    result = sendOTP(e.parameter.token);                    break;
+      case 'verifyOTP':  result = verifyOTP(e.parameter.token, e.parameter.otp); break;
+      case 'submitForm': result = submitForm(e.parameter);                       break;
+      default:           result = { success: false, error: 'Neznámá akce.' };
+    }
+  } catch (err) {
+    result = { success: false, error: 'Interní chyba: ' + err.message };
+    console.error(err);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+//  OTP — odeslání
+// ============================================================
+function sendOTP(token) {
+  if (!token || token.trim() === '') {
+    return { success: false, error: 'Chybí přístupový token v odkazu.' };
+  }
+  const employer = findEmployerByToken(token.trim());
+  if (!employer) return { success: false, error: 'Odkaz není platný nebo vypršel.' };
+
+  const email = employer.data[COL_EMAIL];
+  const name  = employer.data[COL_NAME];
+
+  const otp    = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiry = new Date();
+  expiry.setMinutes(expiry.getMinutes() + OTP_VALIDITY_MIN);
+
+  employer.sheet.getRange(employer.rowNum, COL_OTP + 1).setValue(otp);
+  employer.sheet.getRange(employer.rowNum, COL_OTP_EXPIRY + 1).setValue(expiry.toISOString());
+
+  sendOTPEmail(email, name, otp);
+
+  return { success: true, maskedEmail: maskEmail(email), employerName: name };
+}
+
+// ============================================================
+//  OTP — ověření
+// ============================================================
+function verifyOTP(token, otp) {
+  if (!token || !otp) return { success: false, error: 'Chybí parametry.' };
+
+  const employer = findEmployerByToken(token.trim());
+  if (!employer)  return { success: false, error: 'Neplatný token.' };
+
+  const storedOTP    = employer.data[COL_OTP] ? employer.data[COL_OTP].toString().trim() : '';
+  const expiryString = employer.data[COL_OTP_EXPIRY] ? employer.data[COL_OTP_EXPIRY].toString() : '';
+
+  if (!storedOTP) return { success: false, error: 'Nejprve si nechejte zaslat přihlašovací kód.' };
+
+  const expiry = new Date(expiryString);
+  if (isNaN(expiry.getTime()) || new Date() > expiry) {
+    clearOTP(employer);
+    return { success: false, error: 'Platnost kódu vypršela. Klikněte na „Zaslat nový kód".' };
+  }
+
+  if (storedOTP !== otp.toString().trim()) {
+    return { success: false, error: 'Nesprávný kód. Zkuste to znovu.' };
+  }
+
+  clearOTP(employer);
+
+  return {
+    success:       true,
+    employerName:  employer.data[COL_NAME],
+    ico:           employer.data[COL_ICO],
+    accountNumber: employer.data[COL_ACCOUNT],
+    email:         employer.data[COL_EMAIL]
+  };
+}
+
+// ============================================================
+//  Odeslání formuláře — zápis do Odpovědi + 2 emaily
+// ============================================================
+function submitForm(params) {
+  // Bezpečnostní kontrola tokenu
+  const employer = findEmployerByToken((params.token || '').trim());
+  if (!employer) return { success: false, error: 'Neplatný přístupový token.' };
+
+  const now = new Date();
+
+  // Řádek do listu Odpovědi
+  // A: Datum | B: Token | C: Název | D: IČO | E: Účet |
+  // F: Č. dohody | G: Zaměstnanec | H: ID | I: Měsíc | J: Rok |
+  // K: Hrubá mzda | L: Pojistné | M: Náhrada PN | N: Součet | O: Stav
+  const row = [
+    now,
+    params.token           || '',
+    params.employerName    || '',
+    params.ico             || '',
+    params.accountNumber   || '',
+    params.cisloDohody     || '',
+    params.zamestnanec     || '',
+    params.idZamestnanec   || '',
+    params.mesic           || '',
+    params.rok             || '',
+    Number(params.hrubaMzda)       || 0,
+    Number(params.odvodPojistneho) || 0,
+    Number(params.nahradaPN)       || 0,
+    Number(params.soucet)          || 0,
+    'Čeká na schválení'
+  ];
+
+  const ss          = SpreadsheetApp.openById(SHEET_ID);
+  const answerSheet = ss.getSheetByName(ANSWERS_SHEET);
+  if (!answerSheet) throw new Error('List "' + ANSWERS_SHEET + '" nebyl nalezen.');
+  answerSheet.appendRow(row);
+
+  // Souhrn pro emaily
+  const d = {
+    employerName:    params.employerName    || '',
+    ico:             params.ico             || '',
+    accountNumber:   params.accountNumber   || '',
+    cisloDohody:     params.cisloDohody     || '',
+    zamestnanec:     params.zamestnanec     || '',
+    idZamestnanec:   params.idZamestnanec   || '',
+    mesic:           params.mesic           || '',
+    rok:             params.rok             || '',
+    hrubaMzda:       Number(params.hrubaMzda)       || 0,
+    odvodPojistneho: Number(params.odvodPojistneho) || 0,
+    nahradaPN:       Number(params.nahradaPN)       || 0,
+    soucet:          Number(params.soucet)          || 0,
+    datum:           formatDate(now),
+    email:           params.email           || ''
+  };
+
+  // Email zaměstnavateli
+  if (d.email) sendConfirmationEmail(d);
+
+  // Email adminům
+  const admins = getAdminEmails();
+  if (admins.length > 0) sendAdminNotification(d, admins);
+
+  return { success: true };
+}
+
+// ============================================================
+//  Email 1: Potvrzení zaměstnavateli
+// ============================================================
+function sendConfirmationEmail(d) {
+  const subject = 'Potvrzení přijetí mzdového příspěvku — ' + d.mesic + ' ' + d.rok;
+  const html = `<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 0;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0"
+  style="background:#fff;border-radius:12px;overflow:hidden;max-width:560px;
+         box-shadow:0 2px 12px rgba(0,51,153,.08);">
+  <tr>
+    <td style="background:#003399;padding:28px 36px;">
+      <p style="margin:0 0 4px;color:#FFCC00;font-size:11px;font-weight:600;
+                letter-spacing:.1em;text-transform:uppercase;">Mzdový příspěvek</p>
+      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">Potvrzení přijetí údajů</p>
+    </td>
+  </tr>
+  <tr><td style="padding:32px 36px;">
+    <p style="margin:0 0 8px;color:#374151;font-size:15px;">Dobrý den,</p>
+    <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.6;">
+      potvrzujeme přijetí údajů o mzdovém příspěvku za období
+      <strong>${d.mesic} ${d.rok}</strong>.
+      Po kontrole správnosti údajů Vás budeme informovat o výsledku a případném schválení k proplacení.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0"
+      style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:24px;">
+      <tr style="background:#f8faff;">
+        <td colspan="2" style="padding:12px 16px;font-size:11px;font-weight:600;
+            letter-spacing:.08em;text-transform:uppercase;color:#1a56db;">
+          Souhrn zadaných údajů
+        </td>
+      </tr>
+      ${tableRow('Zaměstnavatel',    d.employerName)}
+      ${tableRow('IČO',              d.ico)}
+      ${tableRow('Bankovní účet',    d.accountNumber)}
+      ${tableRow('Číslo dohody',     d.cisloDohody)}
+      ${tableRow('Zaměstnanec',      d.zamestnanec)}
+      ${tableRow('ID v projektu',    d.idZamestnanec)}
+      ${tableRow('Období',           d.mesic + ' ' + d.rok)}
+      ${tableRow('Hrubá mzda',       formatCZK(d.hrubaMzda))}
+      ${tableRow('Odvod pojistného', formatCZK(d.odvodPojistneho))}
+      ${tableRow('Náhrada mzdy za PN', formatCZK(d.nahradaPN))}
+      <tr style="background:#eff6ff;">
+        <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#003399;
+                   border-top:2px solid #bfdbfe;">Vypočtená částka k proplacení</td>
+        <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#003399;
+                   text-align:right;border-top:2px solid #bfdbfe;">${formatCZK(d.soucet)}</td>
+      </tr>
+    </table>
+    <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.6;">
+      Údaje byly přijaty dne <strong>${d.datum}</strong>.<br/>
+      V případě dotazů nás prosím kontaktujte.
+    </p>
+  </td></tr>
+  <tr>
+    <td style="background:#f9fafb;padding:14px 36px;border-top:1px solid #e5e7eb;">
+      <p style="margin:0;color:#9ca3af;font-size:11px;line-height:1.5;">
+        ${PROJECT_NAME}<br/>${PROJECT_CODE}
+      </p>
+    </td>
+  </tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  GmailApp.sendEmail(d.email, subject, '', { htmlBody: html, name: 'Mzdové příspěvky' });
+}
+
+// ============================================================
+//  Email 2: Notifikace adminům
+// ============================================================
+function sendAdminNotification(d, adminEmails) {
+  const subject = '[Nový záznam] ' + d.employerName + ' — ' + d.mesic + ' ' + d.rok;
+  const html = `<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 0;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0"
+  style="background:#fff;border-radius:12px;overflow:hidden;max-width:560px;
+         box-shadow:0 2px 12px rgba(0,0,0,.08);">
+  <tr>
+    <td style="background:#1f2937;padding:28px 36px;">
+      <p style="margin:0 0 4px;color:#fbbf24;font-size:11px;font-weight:600;
+                letter-spacing:.1em;text-transform:uppercase;">Administrátorská notifikace</p>
+      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">Nový mzdový příspěvek byl zadán</p>
+    </td>
+  </tr>
+  <tr><td style="padding:28px 36px;">
+    <p style="margin:0 0 20px;color:#374151;font-size:14px;line-height:1.6;">
+      Zaměstnavatel <strong>${d.employerName}</strong> zadal dne ${d.datum}
+      údaje za období <strong>${d.mesic} ${d.rok}</strong>.
+      Částka k proplacení: <strong>${formatCZK(d.soucet)}</strong>.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td style="background:#003399;border-radius:8px;">
+          <a href="${SHEET_URL}"
+             style="display:inline-block;padding:12px 24px;color:#fff;
+                    font-size:14px;font-weight:600;text-decoration:none;">
+            Otevřít tabulku →
+          </a>
+        </td>
+      </tr>
+    </table>
+    <table width="100%" cellpadding="0" cellspacing="0"
+      style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+      <tr style="background:#f3f4f6;">
+        <td colspan="2" style="padding:10px 14px;font-size:11px;font-weight:600;
+            letter-spacing:.08em;text-transform:uppercase;color:#6b7280;">Detail záznamu</td>
+      </tr>
+      ${tableRow('Zaměstnavatel',    d.employerName)}
+      ${tableRow('IČO',              d.ico)}
+      ${tableRow('Bankovní účet',    d.accountNumber)}
+      ${tableRow('Číslo dohody',     d.cisloDohody)}
+      ${tableRow('Zaměstnanec',      d.zamestnanec)}
+      ${tableRow('ID v projektu',    d.idZamestnanec)}
+      ${tableRow('Období',           d.mesic + ' ' + d.rok)}
+      ${tableRow('Hrubá mzda',       formatCZK(d.hrubaMzda))}
+      ${tableRow('Odvod pojistného', formatCZK(d.odvodPojistneho))}
+      ${tableRow('Náhrada za PN',    formatCZK(d.nahradaPN))}
+      <tr style="background:#f0fdf4;">
+        <td style="padding:10px 14px;font-size:14px;font-weight:700;color:#15803d;
+                   border-top:2px solid #bbf7d0;">Součet k proplacení</td>
+        <td style="padding:10px 14px;font-size:14px;font-weight:700;color:#15803d;
+                   text-align:right;border-top:2px solid #bbf7d0;">${formatCZK(d.soucet)}</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr>
+    <td style="background:#f9fafb;padding:14px 36px;border-top:1px solid #e5e7eb;">
+      <p style="margin:0;color:#9ca3af;font-size:11px;">Automatická zpráva — ${d.datum}</p>
+    </td>
+  </tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  adminEmails.forEach(email => {
+    GmailApp.sendEmail(email.trim(), subject, '', { htmlBody: html, name: 'Systém mzdových příspěvků' });
+  });
+}
+
+// ============================================================
+//  OTP email
+// ============================================================
+function sendOTPEmail(to, name, otp) {
+  const subject = 'Váš přihlašovací kód pro zadání mzdového příspěvku';
+  const html = `<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 0;">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0"
+  style="background:#fff;border-radius:12px;overflow:hidden;max-width:480px;
+         box-shadow:0 2px 12px rgba(0,51,153,.08);">
+  <tr>
+    <td style="background:#003399;padding:28px 32px;">
+      <p style="margin:0;color:#fff;font-size:18px;font-weight:600;">Přihlašovací kód</p>
+    </td>
+  </tr>
+  <tr><td style="padding:32px;">
+    <p style="margin:0 0 16px;color:#374151;font-size:15px;">Dobrý den,</p>
+    <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.5;">
+      obdrželi jsme žádost o přihlášení k formuláři mzdového příspěvku. Váš jednorázový kód je:
+    </p>
+    <div style="background:#eff6ff;border:2px dashed #1a56db;border-radius:10px;
+                padding:24px;text-align:center;margin-bottom:24px;">
+      <span style="font-size:40px;font-weight:700;letter-spacing:12px;
+                   color:#003399;font-family:'Courier New',monospace;">${otp}</span>
+    </div>
+    <p style="margin:0 0 6px;color:#6b7280;font-size:13px;">
+      ⏱ Kód je platný <strong>${OTP_VALIDITY_MIN} minut</strong>.
+    </p>
+    <p style="margin:0;color:#6b7280;font-size:13px;">
+      Pokud jste o přihlášení nežádali, tento email ignorujte.
+    </p>
+  </td></tr>
+  <tr>
+    <td style="background:#f9fafb;padding:14px 32px;border-top:1px solid #e5e7eb;">
+      <p style="margin:0;color:#9ca3af;font-size:11px;text-align:center;">
+        Automatická zpráva — neodpovídejte na tento email.
+      </p>
+    </td>
+  </tr>
+</table>
+</td></tr></table>
+</body></html>`;
+  GmailApp.sendEmail(to, subject, '', { htmlBody: html, name: 'Mzdové příspěvky' });
+}
+
+// ============================================================
+//  Sdílené pomocné funkce
+// ============================================================
+function findEmployerByToken(token) {
+  const ss    = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(EMPLOYERS_SHEET);
+  if (!sheet) throw new Error('List "' + EMPLOYERS_SHEET + '" nebyl nalezen.');
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][COL_TOKEN] && data[i][COL_TOKEN].toString().trim() === token) {
+      return { rowNum: i + 1, data: data[i], sheet: sheet };
+    }
+  }
+  return null;
+}
+
+function clearOTP(employer) {
+  employer.sheet.getRange(employer.rowNum, COL_OTP + 1).setValue('');
+  employer.sheet.getRange(employer.rowNum, COL_OTP_EXPIRY + 1).setValue('');
+}
+
+function getAdminEmails() {
+  const ss    = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(ADMINS_SHEET);
+  if (!sheet) return [];
+  return sheet.getDataRange().getValues()
+    .map(r => r[0]).filter(e => e && e.toString().includes('@'));
+}
+
+function maskEmail(email) {
+  const parts = email.split('@');
+  if (parts.length !== 2) return email;
+  const name   = parts[0];
+  const masked = name.length > 2 ? name.substring(0, 2) + '•'.repeat(Math.min(name.length - 2, 4)) : name[0] + '•';
+  return masked + '@' + parts[1];
+}
+
+function formatCZK(amount) {
+  return Number(amount).toLocaleString('cs-CZ') + ' Kč';
+}
+
+function formatDate(date) {
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'dd.MM.yyyy HH:mm');
+}
+
+function tableRow(label, value) {
+  return '<tr>' +
+    '<td style="padding:9px 14px;font-size:13px;color:#6b7280;border-top:1px solid #f3f4f6;">' +
+    label + '</td>' +
+    '<td style="padding:9px 14px;font-size:13px;color:#111827;font-weight:500;' +
+    'border-top:1px solid #f3f4f6;text-align:right;">' + (value || '—') + '</td></tr>';
+}
+
+// ============================================================
+//  Testovací funkce — spusťte ručně v editoru
+// ============================================================
+function TEST_sendOTP()   { console.log(JSON.stringify(sendOTP('VÁŠ_TOKEN_ZDE'), null, 2)); }
+function TEST_verifyOTP() { console.log(JSON.stringify(verifyOTP('VÁŠ_TOKEN_ZDE', '123456'), null, 2)); }
