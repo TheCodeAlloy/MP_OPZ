@@ -25,9 +25,7 @@
       --radius:     10px;
       --shadow:     0 4px 20px rgba(0,51,153,.08);
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: #eef2f9;
@@ -35,9 +33,7 @@
       padding: 24px 16px 48px;
       color: var(--gray-800);
     }
-
     .wrapper { max-width: 820px; margin: 0 auto; }
-
     .form-card {
       background: #fff;
       border-radius: 16px;
@@ -45,8 +41,6 @@
       overflow: hidden;
       animation: fadeUp .4s ease both;
     }
-
-    /* ── Hlavička ── */
     .form-header {
       background: var(--blue);
       padding: 20px 28px;
@@ -55,124 +49,63 @@
       align-items: center;
       gap: 16px;
     }
-    .project-title {
-      color: #fff;
-      font-family: 'Source Serif 4', serif;
-      font-size: .98rem;
-      font-weight: 600;
-      line-height: 1.4;
-    }
-    .project-code { color: rgba(255,255,255,.6); font-size: .76rem; margin-top: 4px; }
-
-    /* EU vlajka */
+    .project-title { color: #fff; font-family: 'Source Serif 4', serif; font-size: .98rem; font-weight: 600; line-height: 1.4; }
+    .project-code  { color: rgba(255,255,255,.6); font-size: .76rem; margin-top: 4px; }
     .eu-flag { width: 60px; height: 40px; border: 1px solid rgba(255,255,255,.25); border-radius: 3px; flex-shrink: 0; }
-
-    /* ── Tělo ── */
     .form-body { padding: 28px 28px 0; }
-
     .section-label {
-      font-size: .7rem;
-      font-weight: 600;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      color: var(--blue-mid);
-      margin-bottom: 14px;
-      padding-bottom: 6px;
+      font-size: .7rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+      color: var(--blue-mid); margin-bottom: 14px; padding-bottom: 6px;
       border-bottom: 2px solid var(--blue-light);
     }
-
-    /* ── Dvousloupcový grid ── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-
     .col { padding-bottom: 24px; }
     .col.left  { padding-right: 24px; border-right: 1px solid var(--gray-200); }
     .col.right { padding-left: 24px; }
-
-    /* ── Pole ── */
     .field { margin-bottom: 14px; }
-    .field label {
-      display: block;
-      font-size: .8rem;
-      font-weight: 500;
-      color: var(--gray-600);
-      margin-bottom: 4px;
-    }
+    .field label { display: block; font-size: .8rem; font-weight: 500; color: var(--gray-600); margin-bottom: 4px; }
     .field label .req { color: var(--blue-mid); margin-left: 2px; }
-
-    /* Předvyplněná hodnota */
     .prefilled {
-      font-size: .93rem;
-      font-weight: 600;
-      color: var(--gray-800);
-      padding: 9px 0 3px;
-      min-height: 38px;
-      line-height: 1.4;
+      font-size: .93rem; font-weight: 600; color: var(--gray-800);
+      padding: 9px 0 3px; min-height: 38px; line-height: 1.4;
       border-bottom: 1px dashed var(--gray-200);
     }
     .prefilled.empty { color: var(--gray-400); font-weight: 400; font-style: italic; }
-
-    /* Vstup */
     .field input, .field select {
-      width: 100%;
-      padding: 10px 14px;
-      font-size: .93rem;
+      width: 100%; padding: 10px 14px; font-size: .93rem;
       font-family: 'DM Sans', sans-serif;
-      border: 1.5px solid var(--gray-200);
-      border-radius: var(--radius);
-      background: var(--gray-50);
-      color: var(--gray-800);
-      outline: none;
+      border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+      background: var(--gray-50); color: var(--gray-800); outline: none;
       transition: border-color .15s, box-shadow .15s, background .15s;
       -webkit-appearance: none;
     }
     .field input:focus, .field select:focus {
-      border-color: var(--blue-mid);
-      background: #fff;
+      border-color: var(--blue-mid); background: #fff;
       box-shadow: 0 0 0 3px rgba(26,86,219,.12);
     }
-    .field input.invalid, .field select.invalid {
-      border-color: var(--red);
-      background: var(--red-bg);
-    }
-
-    /* Číslo + přípona Kč */
+    .field input.invalid, .field select.invalid { border-color: var(--red); background: var(--red-bg); }
     .input-kc { position: relative; }
     .input-kc input { padding-right: 42px; }
     .input-kc .suffix {
-      position: absolute; right: 13px; top: 50%;
-      transform: translateY(-50%);
-      font-size: .8rem; font-weight: 600; color: var(--gray-400);
-      pointer-events: none;
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      font-size: .8rem; font-weight: 600; color: var(--gray-400); pointer-events: none;
     }
-
-    /* Součet */
     .total-box {
       display: flex; align-items: center; justify-content: space-between;
-      background: var(--blue-light);
-      border: 1.5px solid #bfdbfe;
-      border-radius: var(--radius);
-      padding: 11px 14px;
+      background: var(--blue-light); border: 1.5px solid #bfdbfe;
+      border-radius: var(--radius); padding: 11px 14px;
     }
     .total-box .tl { font-size: .75rem; font-weight: 500; color: var(--blue-mid); }
     .total-box .tv { font-size: 1.08rem; font-weight: 700; color: var(--blue); }
     .formula-note { font-size: .75rem; color: var(--gray-400); margin-top: 5px; font-style: italic; }
-
-    /* Oddělovač */
     .divider { border: none; border-top: 1px solid var(--gray-200); margin: 4px 0 18px; }
-
-    /* Zpráva */
     .msg { display: none; padding: 13px 18px; border-radius: 8px; font-size: .88rem; line-height: 1.5; margin: 0 28px 20px; }
     .msg.error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #fecaca; display: block; }
     .msg.success { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; display: block; }
-
-    /* Patička */
     .form-footer {
-      padding: 18px 28px 28px;
-      border-top: 1px solid var(--gray-200);
-      display: flex; gap: 12px; flex-wrap: wrap;
-      align-items: center; justify-content: flex-end;
+      padding: 18px 28px 28px; border-top: 1px solid var(--gray-200);
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
     }
-
     .btn {
       padding: 12px 28px; font-size: .93rem; font-family: 'DM Sans', sans-serif;
       font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer;
@@ -185,24 +118,17 @@
     .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
     .btn-secondary { background: var(--gray-100); color: var(--gray-600); }
     .btn-secondary:hover { background: var(--gray-200); }
-
     .spinner {
       width: 17px; height: 17px;
       border: 2.5px solid rgba(255,255,255,.35); border-top-color: #fff;
       border-radius: 50%; animation: spin .7s linear infinite; display: none;
     }
-
-    /* Úspěch */
     .success-screen { display: none; padding: 48px 28px; text-align: center; }
     .success-screen .check { width: 72px; height: 72px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; }
     .success-screen h2 { font-family: 'Source Serif 4', serif; font-size: 1.5rem; color: var(--gray-800); margin-bottom: 12px; }
-    .success-screen p { color: var(--gray-600); line-height: 1.65; max-width: 400px; margin: 0 auto; }
-
-    /* Animace */
+    .success-screen p { color: var(--gray-600); line-height: 1.65; max-width: 420px; margin: 0 auto; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
     @keyframes spin   { to { transform:rotate(360deg); } }
-
-    /* Responsive */
     @media (max-width: 600px) {
       .two-col { grid-template-columns: 1fr; }
       .col.left  { padding-right: 0; border-right: none; border-bottom: 1px solid var(--gray-200); padding-bottom: 16px; margin-bottom: 16px; }
@@ -217,7 +143,6 @@
 <div class="wrapper">
 <div class="form-card" id="form-card">
 
-  <!-- HLAVIČKA -->
   <div class="form-header">
     <div>
       <div class="project-title">Podpora zapojení osob ukrajinské národnosti na trhu práce II.</div>
@@ -242,48 +167,25 @@
     </svg>
   </div>
 
-  <!-- TĚLO -->
   <div class="form-body" id="form-body">
     <div class="two-col">
 
-      <!-- ── LEVÝ sloupec: všechno předvyplněno ── -->
+      <!-- LEVÝ sloupec — předvyplněno -->
       <div class="col left">
         <p class="section-label">Zaměstnavatel</p>
-
-        <div class="field">
-          <label>Název zaměstnavatele</label>
-          <div class="prefilled" id="disp-name">—</div>
-        </div>
-        <div class="field">
-          <label>IČO</label>
-          <div class="prefilled" id="disp-ico">—</div>
-        </div>
-        <div class="field">
-          <label>Bankovní účet</label>
-          <div class="prefilled" id="disp-account">—</div>
-        </div>
-        <div class="field">
-          <label>Číslo dohody</label>
-          <div class="prefilled" id="disp-dohoda">—</div>
-        </div>
-
+        <div class="field"><label>Název zaměstnavatele</label><div class="prefilled" id="disp-name">—</div></div>
+        <div class="field"><label>IČ</label><div class="prefilled" id="disp-ico">—</div></div>
+        <div class="field"><label>Bankovní účet</label><div class="prefilled" id="disp-account">—</div></div>
+        <div class="field"><label>Číslo dohody</label><div class="prefilled" id="disp-dohoda">—</div></div>
         <hr class="divider" />
         <p class="section-label">Zaměstnanec</p>
-
-        <div class="field">
-          <label>Jméno a příjmení</label>
-          <div class="prefilled" id="disp-zamestnanec">—</div>
-        </div>
-        <div class="field">
-          <label>ID zaměstnance v projektu</label>
-          <div class="prefilled" id="disp-id">—</div>
-        </div>
+        <div class="field"><label>Jméno a příjmení</label><div class="prefilled" id="disp-zamestnanec">—</div></div>
+        <div class="field"><label>Projektové ID zaměstnance</label><div class="prefilled" id="disp-id">—</div></div>
       </div>
 
-      <!-- ── PRAVÝ sloupec: vyplňuje zaměstnavatel ── -->
+      <!-- PRAVÝ sloupec — vyplňuje zaměstnavatel -->
       <div class="col right">
         <p class="section-label">Období</p>
-
         <div class="field">
           <label>Měsíc <span class="req">*</span></label>
           <select id="mesic">
@@ -310,48 +212,44 @@
             <option value="2027">2027</option>
           </select>
         </div>
-
         <hr class="divider" />
         <p class="section-label">Mzdové údaje</p>
-
         <div class="field">
           <label>Hrubá mzda <span class="req">*</span></label>
           <div class="input-kc">
-            <input type="number" id="hruba-mzda" placeholder="0" min="0" step="1" inputmode="numeric" />
+            <input type="number" id="hruba-mzda" placeholder="0" min="0" step="0.01" inputmode="decimal" />
             <span class="suffix">Kč</span>
           </div>
         </div>
         <div class="field">
           <label>Odvod pojistného <span class="req">*</span></label>
           <div class="input-kc">
-            <input type="number" id="odvod" placeholder="0" min="0" step="1" inputmode="numeric" />
+            <input type="number" id="odvod" placeholder="0" min="0" step="0.01" inputmode="decimal" />
             <span class="suffix">Kč</span>
           </div>
         </div>
         <div class="field">
           <label>Náhrada mzdy za PN</label>
           <div class="input-kc">
-            <input type="number" id="nahrada-pn" placeholder="0" min="0" step="1" inputmode="numeric" />
+            <input type="number" id="nahrada-pn" placeholder="0" min="0" step="0.01" inputmode="decimal" />
             <span class="suffix">Kč</span>
           </div>
         </div>
-
         <div class="field">
           <label>Součet (automaticky)</label>
           <div class="total-box">
             <span class="tl">Hrubá + Pojistné − Náhrada PN</span>
-            <span class="tv" id="soucet-value">0 Kč</span>
+            <span class="tv" id="soucet-value">0,00 Kč</span>
           </div>
           <div class="formula-note">= Hrubá mzda + Odvod pojistného − Náhrada mzdy za PN</div>
         </div>
       </div>
 
-    </div><!-- /two-col -->
-  </div><!-- /form-body -->
+    </div>
+  </div>
 
   <div class="msg" id="msg"></div>
 
-  <!-- PATIČKA -->
   <div class="form-footer" id="form-footer">
     <button class="btn btn-secondary" id="btn-reset">Vymazat</button>
     <button class="btn btn-primary" id="btn-submit">
@@ -360,44 +258,32 @@
     </button>
   </div>
 
-  <!-- ÚSPĚŠNÁ OBRAZOVKA -->
   <div class="success-screen" id="success-screen">
     <div class="check">✅</div>
     <h2>Údaje byly odeslány</h2>
-    <p>
-      Děkujeme za zadání mzdového příspěvku.<br/>
+    <p id="success-text">
+      Děkujeme za zadání údajů.<br/>
       Potvrzení jsme odeslali na vaši e-mailovou adresu.<br/>
       Po kontrole údajů vás budeme informovat o výsledku.
     </p>
   </div>
 
-</div><!-- /form-card -->
-</div><!-- /wrapper -->
+</div>
+</div>
 
 <script>
-// ── KONFIGURACE ──────────────────────────────────────────────
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6iOxoSAKYIH4G3h0w-ITnrVcc75eeRKVRX17FBI0x7xrD8Hf7Xq6BFWVWxe-vaQiA/exec';
 
-// ── Načtení dat po OTP ───────────────────────────────────────
+// Načtení dat po OTP
 const employerData = JSON.parse(sessionStorage.getItem('employerData') || 'null');
 const authToken    = sessionStorage.getItem('authToken') || '';
+if (!authToken || !employerData) window.location.href = 'index.html';
 
-if (!authToken || !employerData) {
-  window.location.href = 'index.html';
-}
-
-// Zobraz předvyplněná data
 function setField(id, val) {
   const el = document.getElementById(id);
-  if (val && val.toString().trim()) {
-    el.textContent = val;
-    el.classList.remove('empty');
-  } else {
-    el.textContent = '—';
-    el.classList.add('empty');
-  }
+  if (val && val.toString().trim()) { el.textContent = val; el.classList.remove('empty'); }
+  else { el.textContent = '—'; el.classList.add('empty'); }
 }
-
 setField('disp-name',        employerData.employerName);
 setField('disp-ico',         employerData.ico);
 setField('disp-account',     employerData.accountNumber);
@@ -405,24 +291,23 @@ setField('disp-dohoda',      employerData.cisloDohody);
 setField('disp-zamestnanec', employerData.zamestnanec);
 setField('disp-id',          employerData.idZamestnanec);
 
-// ── Automatický výpočet součtu ────────────────────────────────
-['hruba-mzda', 'odvod', 'nahrada-pn'].forEach(id =>
-  document.getElementById(id).addEventListener('input', recalc)
-);
+// Výpočet součtu
+['hruba-mzda','odvod','nahrada-pn'].forEach(id =>
+  document.getElementById(id).addEventListener('input', recalc));
 
 function recalc() {
   const h = parseFloat(document.getElementById('hruba-mzda').value) || 0;
   const o = parseFloat(document.getElementById('odvod').value)       || 0;
   const n = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
   document.getElementById('soucet-value').textContent =
-    (h + o - n).toLocaleString('cs-CZ') + ' Kč';
+    (h + o - n).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kč';
 }
 
-// ── Validace ──────────────────────────────────────────────────
+// Validace
 function validate() {
   let ok = true;
-  ['mesic', 'rok', 'hruba-mzda', 'odvod'].forEach(id => {
-    const el    = document.getElementById(id);
+  ['mesic','rok','hruba-mzda','odvod'].forEach(id => {
+    const el = document.getElementById(id);
     const empty = !el.value || el.value.trim() === '';
     el.classList.toggle('invalid', empty);
     if (empty) ok = false;
@@ -434,19 +319,15 @@ document.querySelectorAll('input, select').forEach(el => {
   el.addEventListener('change', () => el.classList.remove('invalid'));
 });
 
-// ── Odeslání ──────────────────────────────────────────────────
+// Odeslání
 document.getElementById('btn-submit').addEventListener('click', submitForm);
 
 async function submitForm() {
   clearMsg();
-  if (!validate()) {
-    showMsg('error', 'Vyplňte prosím všechna povinná pole označená *.');
-    return;
-  }
+  if (!validate()) { showMsg('error', 'Vyplňte prosím všechna povinná pole označená *.'); return; }
 
   const mesicEl  = document.getElementById('mesic');
-  const mesicNum = mesicEl.value;                                    // "03"
-  const mesicNaz = mesicEl.options[mesicEl.selectedIndex].dataset.nazev; // "Březen"
+  const mesicNum = mesicEl.value;
   const rok      = document.getElementById('rok').value;
   const hruba    = parseFloat(document.getElementById('hruba-mzda').value) || 0;
   const odvod    = parseFloat(document.getElementById('odvod').value)       || 0;
@@ -454,35 +335,33 @@ async function submitForm() {
   const soucet   = hruba + odvod - nahrada;
 
   const payload = {
-    action:          'submitForm',
-    token:           authToken,
-    employerName:    employerData.employerName  || '',
-    ico:             employerData.ico           || '',
-    accountNumber:   employerData.accountNumber || '',
-    cisloDohody:     employerData.cisloDohody   || '',
-    zamestnanec:     employerData.zamestnanec   || '',
-    idZamestnanec:   employerData.idZamestnanec || '',
-    email:           employerData.email         || '',
-    mesicCislo:      mesicNum,
-    mesicNazev:      mesicNaz,
-    rok,
-    hrubaMzda:       hruba,
-    odvodPojistneho: odvod,
-    nahradaPN:       nahrada,
-    soucet
+    action: 'submitForm', token: authToken,
+    employerName: employerData.employerName  || '',
+    ico:          employerData.ico           || '',
+    accountNumber:employerData.accountNumber || '',
+    cisloDohody:  employerData.cisloDohody   || '',
+    zamestnanec:  employerData.zamestnanec   || '',
+    idZamestnanec:employerData.idZamestnanec || '',
+    email:        employerData.email         || '',
+    mesicCislo: mesicNum, rok,
+    hrubaMzda: hruba, odvodPojistneho: odvod, nahradaPN: nahrada, soucet
   };
 
   setSubmitLoading(true);
   try {
     const res = await apiFetch(payload);
-    if (!res.success) {
-      showMsg('error', res.error || 'Odeslání se nezdařilo. Zkuste to znovu.');
-      return;
-    }
-    // Úspěch
-    document.getElementById('form-body').style.display   = 'none';
-    document.getElementById('form-footer').style.display = 'none';
-    document.getElementById('msg').style.display         = 'none';
+    if (!res.success) { showMsg('error', res.error || 'Odeslání se nezdařilo. Zkuste to znovu.'); return; }
+
+    // Dynamický text úspěšné obrazovky
+    const obdobiStr = res.obdobiStr || (('0' + mesicNum).slice(-2) + '/' + rok);
+    document.getElementById('success-text').innerHTML =
+      `Děkujeme za zadání údajů za období <strong>${obdobiStr}</strong>.<br/>
+       Potvrzení jsme odeslali na vaši e-mailovou adresu.<br/>
+       Po kontrole údajů vás budeme informovat o výsledku.`;
+
+    document.getElementById('form-body').style.display    = 'none';
+    document.getElementById('form-footer').style.display  = 'none';
+    document.getElementById('msg').style.display          = 'none';
     document.getElementById('success-screen').style.display = 'block';
     sessionStorage.clear();
   } catch (err) {
@@ -492,37 +371,32 @@ async function submitForm() {
   }
 }
 
-// ── Reset ─────────────────────────────────────────────────────
+// Reset
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('Opravdu chcete vymazat vyplněná pole?')) return;
-  ['hruba-mzda', 'odvod', 'nahrada-pn'].forEach(id => {
+  ['hruba-mzda','odvod','nahrada-pn'].forEach(id => {
     document.getElementById(id).value = '';
     document.getElementById(id).classList.remove('invalid');
   });
   document.getElementById('mesic').value = '';
   document.getElementById('rok').value   = '';
-  recalc();
-  clearMsg();
+  recalc(); clearMsg();
 });
 
-// ── UI helpers ────────────────────────────────────────────────
 function showMsg(type, text) {
   const el = document.getElementById('msg');
-  el.className = 'msg ' + type;
-  el.textContent = text;
+  el.className = 'msg ' + type; el.textContent = text;
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function clearMsg() { const el = document.getElementById('msg'); el.className = 'msg'; el.textContent = ''; }
 function setSubmitLoading(on) {
   document.getElementById('btn-submit').disabled = on;
-  document.getElementById('submit-label').style.display  = on ? 'none' : 'inline';
+  document.getElementById('submit-label').style.display   = on ? 'none' : 'inline';
   document.getElementById('submit-spinner').style.display = on ? 'block' : 'none';
 }
-
-// ── API call ──────────────────────────────────────────────────
 async function apiFetch(params) {
   const url = new URL(APPS_SCRIPT_URL);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   const r = await fetch(url.toString(), { redirect: 'follow' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return r.json();
