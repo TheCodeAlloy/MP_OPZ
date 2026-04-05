@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zadání mzdového příspěvku</title>
+  <title>Vyúčtování mzdových nákladů projektu ESF</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --blue:       #003399;
       --blue-mid:   #1a56db;
       --blue-light: #eff6ff;
-      --gold:       #FFCC00;
       --gray-50:    #f9fafb;
       --gray-100:   #f3f4f6;
       --gray-200:   #e5e7eb;
@@ -22,6 +22,9 @@
       --green-bg:   #f0fdf4;
       --red:        #b91c1c;
       --red-bg:     #fef2f2;
+      --amber:      #92400e;
+      --amber-bg:   #fffbeb;
+      --amber-border:#fcd34d;
       --radius:     10px;
       --shadow:     0 4px 20px rgba(0,51,153,.08);
     }
@@ -33,7 +36,29 @@
       padding: 24px 16px 48px;
       color: var(--gray-800);
     }
-    .wrapper { max-width: 820px; margin: 0 auto; }
+    .wrapper { max-width: 840px; margin: 0 auto; }
+
+    /* ── Hlavní nadpis stránky ── */
+    .page-title {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 0 8px;
+    }
+    .page-title h1 {
+      font-family: 'Source Serif 4', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .page-title p {
+      font-size: .88rem;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+
+    /* ── Karta ── */
     .form-card {
       background: #fff;
       border-radius: 16px;
@@ -116,24 +141,22 @@
       cursor: pointer; flex-shrink: 0; user-select: none; line-height: 1;
     }
     .tooltip-box {
-      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
-      transform: translateX(-50%);
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 0;
       background: #1f2937; color: #f9fafb;
-      font-size: 12px; font-weight: 400; line-height: 1.5;
+      font-size: 12px; font-weight: 400; line-height: 1.55;
       padding: 10px 13px; border-radius: 8px;
-      width: 260px; z-index: 100;
+      width: 300px; z-index: 100;
       box-shadow: 0 4px 16px rgba(0,0,0,.25);
     }
     .tooltip-box::after {
-      content: ''; position: absolute; top: 100%; left: 50%;
-      transform: translateX(-50%);
+      content: ''; position: absolute; top: 100%; left: 20px;
       border: 6px solid transparent; border-top-color: #1f2937;
     }
     .tooltip-wrap:hover .tooltip-box,
     .tooltip-wrap.open .tooltip-box { display: block; }
 
     /* ── Upload ── */
-    .upload-section { margin: 0 28px; padding: 20px 0; border-top: 1px solid var(--gray-200); }
+    .section-block { margin: 0 28px; padding: 20px 0; border-top: 1px solid var(--gray-200); }
     .upload-label-row {
       display: flex; align-items: center; gap: 6px;
       font-size: .8rem; font-weight: 500; color: var(--gray-600); margin-bottom: 10px;
@@ -165,6 +188,61 @@
     .upload-alt { font-size: .78rem; color: var(--gray-400); margin-top: 8px; text-align: center; }
     .upload-alt a { color: var(--blue-mid); }
 
+    /* ── Prohlášení ── */
+    .declaration-section { margin: 0 28px; padding: 24px 0; border-top: 1px solid var(--gray-200); }
+
+    .warning-box {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-left: 4px solid #f59e0b;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .warning-box .box-title {
+      font-size: .8rem; font-weight: 700; color: var(--amber);
+      letter-spacing: .05em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .warning-box p {
+      font-size: .82rem; color: #78350f; line-height: 1.65;
+    }
+
+    .decl-box {
+      background: var(--blue-light);
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--blue-mid);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .decl-box .box-title {
+      font-size: .8rem; font-weight: 700; color: var(--blue);
+      letter-spacing: .05em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .decl-box p {
+      font-size: .82rem; color: var(--gray-800); line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .decl-box p:last-child { margin-bottom: 0; }
+
+    /* ── Checkbox ── */
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px 18px;
+      background: var(--gray-50); border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+    }
+    .checkbox-row input[type=checkbox] {
+      width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px;
+      accent-color: var(--blue); cursor: pointer;
+    }
+    .checkbox-row label {
+      font-size: .9rem; font-weight: 500; color: var(--gray-800);
+      cursor: pointer; line-height: 1.4;
+    }
+
     /* ── Zpráva ── */
     .msg { display: none; padding: 13px 18px; border-radius: 8px; font-size: .88rem; line-height: 1.5; margin: 0 28px 20px; }
     .msg.error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #fecaca; display: block; }
@@ -174,8 +252,12 @@
     /* ── Patička ── */
     .form-footer {
       padding: 18px 28px 28px; border-top: 1px solid var(--gray-200);
-      display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: flex-end;
     }
+    .confirm-text {
+      font-size: .8rem; color: var(--gray-600); margin-bottom: 14px;
+      line-height: 1.5; font-style: italic;
+    }
+    .footer-btns { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
     .btn {
       padding: 12px 28px; font-size: .93rem; font-family: 'DM Sans', sans-serif;
       font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer;
@@ -183,9 +265,9 @@
       display: inline-flex; align-items: center; gap: 8px;
     }
     .btn:active { transform: scale(.98); }
-    .btn-primary { background: var(--blue); color: #fff; min-width: 180px; justify-content: center; }
+    .btn-primary { background: var(--blue); color: #fff; min-width: 220px; justify-content: center; }
     .btn-primary:hover:not(:disabled) { background: #002277; }
-    .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
     .btn-secondary { background: var(--gray-100); color: var(--gray-600); }
     .btn-secondary:hover { background: var(--gray-200); }
     .spinner {
@@ -193,6 +275,16 @@
       border: 2.5px solid rgba(255,255,255,.35); border-top-color: #fff;
       border-radius: 50%; animation: spin .7s linear infinite; display: none;
     }
+
+    /* ── EU logo patička ── */
+    .eu-footer {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-top: 20px; padding: 16px;
+      opacity: .7;
+    }
+    .eu-footer-logo { display: flex; align-items: center; gap: 10px; }
+    .eu-footer-text { font-size: .78rem; color: var(--gray-600); line-height: 1.3; }
+    .eu-footer-text strong { display: block; font-size: .8rem; }
 
     /* ── Úspěch ── */
     .success-screen { display: none; padding: 48px 28px; text-align: center; }
@@ -209,195 +301,284 @@
       .col.right { padding-left: 0; }
       .form-body { padding: 20px 16px 0; }
       .form-footer { padding: 16px; }
-      .msg, .upload-section { margin-left: 16px; margin-right: 16px; }
+      .msg, .section-block, .declaration-section { margin-left: 16px; margin-right: 16px; }
     }
   </style>
 </head>
 <body>
 <div class="wrapper">
-<div class="form-card" id="form-card">
 
-  <!-- HLAVIČKA -->
-  <div class="form-header">
-    <div>
-      <div class="project-title">Podpora zapojení osob ukrajinské národnosti na trhu práce II.</div>
-      <div class="project-code">CZ.03.01.01/00/24_078/0005068</div>
-    </div>
-    <svg class="eu-flag" viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg">
-      <rect width="640" height="430" fill="#003399"/>
-      <g fill="#FFCC00">
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(30,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(60,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(90,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(120,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(150,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(180,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(210,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(240,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(270,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(300,320,215)"/>
-        <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(330,320,215)"/>
-      </g>
-    </svg>
+  <!-- HLAVNÍ NADPIS STRÁNKY -->
+  <div class="page-title">
+    <h1>Vyúčtování mzdových nákladů projektu ESF</h1>
+    <p>„Podpora zapojení osob ukrajinské národnosti na trhu práce II.", reg.č.: CZ.03.01.01/00/24_078/0005068</p>
   </div>
 
-  <!-- TĚLO -->
-  <div class="form-body" id="form-body">
-    <div class="two-col">
+  <div class="form-card" id="form-card">
 
-      <!-- ── LEVÝ SLOUPEC: předvyplněno ── -->
-      <div class="col left">
-        <p class="section-label">Zaměstnavatel</p>
-        <div class="field"><label>Název zaměstnavatele</label><div class="prefilled" id="disp-name">—</div></div>
-        <div class="field"><label>IČ</label><div class="prefilled" id="disp-ico">—</div></div>
-        <div class="field"><label>Bankovní účet</label><div class="prefilled" id="disp-account">—</div></div>
-        <div class="field"><label>Číslo dohody</label><div class="prefilled" id="disp-dohoda">—</div></div>
-        <hr class="divider" />
-        <p class="section-label">Zaměstnanec</p>
-        <div class="field"><label>Jméno a příjmení</label><div class="prefilled" id="disp-zamestnanec">—</div></div>
-        <div class="field"><label>Projektové ID zaměstnance</label><div class="prefilled" id="disp-id">—</div></div>
+    <!-- HLAVIČKA -->
+    <div class="form-header">
+      <div>
+        <div class="project-title">Podpora zapojení osob ukrajinské národnosti na trhu práce II.</div>
+        <div class="project-code">CZ.03.01.01/00/24_078/0005068</div>
       </div>
+      <svg class="eu-flag" viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg">
+        <rect width="640" height="430" fill="#003399"/>
+        <g fill="#FFCC00">
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(30,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(60,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(90,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(120,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(150,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(180,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(210,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(240,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(270,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(300,320,215)"/>
+          <polygon points="320,55 326,73 345,73 330,84 336,102 320,91 304,102 310,84 295,73 314,73" transform="rotate(330,320,215)"/>
+        </g>
+      </svg>
+    </div>
 
-      <!-- ── PRAVÝ SLOUPEC: vyplňuje zaměstnavatel ── -->
-      <div class="col right">
-        <p class="section-label">Období</p>
-        <div class="field">
-          <label>Měsíc <span class="req">*</span></label>
-          <select id="mesic">
-            <option value="">— vyberte měsíc —</option>
-            <option value="01">Leden</option>
-            <option value="02">Únor</option>
-            <option value="03">Březen</option>
-            <option value="04">Duben</option>
-            <option value="05">Květen</option>
-            <option value="06">Červen</option>
-            <option value="07">Červenec</option>
-            <option value="08">Srpen</option>
-            <option value="09">Září</option>
-            <option value="10">Říjen</option>
-            <option value="11">Listopad</option>
-            <option value="12">Prosinec</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Rok <span class="req">*</span></label>
-          <select id="rok">
-            <option value="">— vyberte rok —</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-          </select>
+    <!-- TĚLO FORMULÁŘE -->
+    <div class="form-body" id="form-body">
+      <div class="two-col">
+
+        <!-- LEVÝ SLOUPEC -->
+        <div class="col left">
+          <p class="section-label">Zaměstnavatel</p>
+          <div class="field"><label>Název zaměstnavatele</label><div class="prefilled" id="disp-name">—</div></div>
+          <div class="field"><label>IČ</label><div class="prefilled" id="disp-ico">—</div></div>
+          <div class="field"><label>Bankovní účet</label><div class="prefilled" id="disp-account">—</div></div>
+          <div class="field"><label>Číslo dohody</label><div class="prefilled" id="disp-dohoda">—</div></div>
+          <hr class="divider" />
+          <p class="section-label">Zaměstnanec</p>
+          <div class="field"><label>Jméno a příjmení</label><div class="prefilled" id="disp-zamestnanec">—</div></div>
+          <div class="field"><label>Projektové ID zaměstnance</label><div class="prefilled" id="disp-id">—</div></div>
         </div>
 
-        <!-- VYLOUČENÉ DNY — přesunuto sem, nad mzdové údaje -->
-        <div class="field">
-          <label>
-            <span class="tooltip-wrap">
-              Počet vyloučených dnů
-              <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
-              <span class="tooltip-box">
-                <strong>Vyloučené pracovní dny:</strong><br/>
-                • Dny před začátkem nebo po ukončení pracovněprávního vztahu (pokud nejde o první/poslední den v měsíci)<br/>
-                • Dny čerpání nemocenského (PN delší než 14 dní), ošetřovného, dlouhodobého ošetřovného nebo PPM<br/>
-                • Dny překážek v práci bez náhrady mzdy vč. neplaceného volna<br/>
-                • Dny neomluvené absence
+        <!-- PRAVÝ SLOUPEC -->
+        <div class="col right">
+          <p class="section-label">Období</p>
+          <div class="field">
+            <label>Měsíc <span class="req">*</span></label>
+            <select id="mesic">
+              <option value="">— vyberte měsíc —</option>
+              <option value="01">Leden</option>
+              <option value="02">Únor</option>
+              <option value="03">Březen</option>
+              <option value="04">Duben</option>
+              <option value="05">Květen</option>
+              <option value="06">Červen</option>
+              <option value="07">Červenec</option>
+              <option value="08">Srpen</option>
+              <option value="09">Září</option>
+              <option value="10">Říjen</option>
+              <option value="11">Listopad</option>
+              <option value="12">Prosinec</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Rok <span class="req">*</span></label>
+            <select id="rok">
+              <option value="">— vyberte rok —</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+
+          <!-- VYLOUČENÉ DNY -->
+          <div class="field">
+            <label>
+              <span class="tooltip-wrap">
+                Počet vyloučených dnů
+                <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+                <span class="tooltip-box">
+                  <strong>Vyloučené pracovní dny:</strong><br/>
+                  • Dny před začátkem nebo po ukončení pracovněprávního vztahu (pokud nejde o první/poslední den v měsíci)<br/>
+                  • Dny čerpání nemocenského (PN delší než 14 dní), ošetřovného, dlouhodobého ošetřovného nebo PPM<br/>
+                  • Dny překážek v práci bez náhrady mzdy vč. neplaceného volna<br/>
+                  • Dny neomluvené absence
+                </span>
               </span>
-            </span>
-          </label>
-          <input type="number" id="vyloucene-dny" placeholder="0" min="0" max="31" step="1" inputmode="numeric" />
+            </label>
+            <input type="number" id="vyloucene-dny" placeholder="0" min="0" max="31" step="1" inputmode="numeric" />
+          </div>
+
+          <hr class="divider" />
+          <p class="section-label">Mzdové údaje</p>
+
+          <div class="field">
+            <label>
+              <span class="tooltip-wrap">
+                Hrubá mzda <span class="req">*</span>
+                <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+                <span class="tooltip-box">
+                  Uveďte hrubou mzdu zúčtovanou zaměstnanci k výplatě (bez uvedení náhrady mzdy za dočasnou pracovní neschopnost/karanténu).
+                </span>
+              </span>
+            </label>
+            <div class="input-kc">
+              <input type="number" id="hruba-mzda" placeholder="0" min="0" step="0.01" inputmode="decimal" />
+              <span class="suffix">Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>
+              <span class="tooltip-wrap">
+                Odvod pojistného <span class="req">*</span>
+                <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+                <span class="tooltip-box">
+                  Uveďte součet částky pojistného na sociální zabezpečení, příspěvku na státní politiku zaměstnanosti a pojistného na veřejné zdravotní pojištění, které zaměstnavatel za sebe odvádí z vyměřovacího základu zaměstnance.
+                </span>
+              </span>
+            </label>
+            <div class="input-kc">
+              <input type="number" id="odvod" placeholder="0" min="0" step="0.01" inputmode="decimal" />
+              <span class="suffix">Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>
+              <span class="tooltip-wrap">
+                Náhrada mzdy za PN
+                <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+                <span class="tooltip-box">
+                  Uveďte celou částku náhrady mzdy za dočasnou pracovní neschopnost/karanténu vyplacenou zaměstnanci (§ 192 odst. 1 a 2 zákoníku práce). Nezahrnujte tu část náhrady mzdy za dobu dočasné pracovní neschopnosti/karantény, která byla dohodnuta nebo stanovena nad výši, na kterou zaměstnanci vznikl nárok podle zákoníku práce (§ 192 odst. 3 zákoníku práce).
+                </span>
+              </span>
+            </label>
+            <div class="input-kc">
+              <input type="number" id="nahrada-pn" placeholder="0" min="0" step="0.01" inputmode="decimal" />
+              <span class="suffix">Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Součet (automaticky)</label>
+            <div class="total-box">
+              <span class="tl">Hrubá + Pojistné + Náhrada PN</span>
+              <span class="tv" id="soucet-value">0,00 Kč</span>
+            </div>
+            <div class="formula-note">= Hrubá mzda + Odvod pojistného + Náhrada mzdy za PN</div>
+          </div>
         </div>
 
-        <hr class="divider" />
-        <p class="section-label">Mzdové údaje</p>
+      </div>
+    </div>
 
-        <div class="field">
-          <label>Hrubá mzda <span class="req">*</span></label>
-          <div class="input-kc">
-            <input type="number" id="hruba-mzda" placeholder="0" min="0" step="0.01" inputmode="decimal" />
-            <span class="suffix">Kč</span>
-          </div>
-        </div>
-        <div class="field">
-          <label>Odvod pojistného <span class="req">*</span></label>
-          <div class="input-kc">
-            <input type="number" id="odvod" placeholder="0" min="0" step="0.01" inputmode="decimal" />
-            <span class="suffix">Kč</span>
-          </div>
-        </div>
-        <div class="field">
-          <label>Náhrada mzdy za PN</label>
-          <div class="input-kc">
-            <input type="number" id="nahrada-pn" placeholder="0" min="0" step="0.01" inputmode="decimal" />
-            <span class="suffix">Kč</span>
-          </div>
-        </div>
-        <div class="field">
-          <label>Součet (automaticky)</label>
-          <div class="total-box">
-            <span class="tl">Hrubá + Pojistné + Náhrada PN</span>
-            <span class="tv" id="soucet-value">0,00 Kč</span>
-          </div>
-          <div class="formula-note">= Hrubá mzda + Odvod pojistného + Náhrada mzdy za PN</div>
-        </div>
+    <!-- UPLOAD VÝPLATNÍ PÁSKY -->
+    <div class="section-block" id="upload-section">
+      <div class="upload-label-row">
+        <span>Výplatní páska</span>
+        <span class="tooltip-wrap">
+          <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
+          <span class="tooltip-box" style="width:240px;">
+            Přetáhněte nebo vyberte soubor PDF, JPG nebo PNG s výplatní páskou zaměstnance.
+            Výplatní pásku můžete případně zaslat emailem na <strong>info@c1z.cz</strong>.
+          </span>
+        </span>
+      </div>
+      <div class="drop-zone" id="drop-zone"
+           ondragover="dzDragOver(event)" ondragleave="dzDragLeave(event)" ondrop="dzDrop(event)">
+        <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png"
+               onchange="dzFileSelected(this.files[0])" />
+        <div class="drop-zone-icon">📎</div>
+        <div class="drop-zone-text"><strong>Přetáhněte soubor sem</strong> nebo klikněte pro výběr</div>
+        <div class="drop-zone-hint">Podporované formáty: PDF, JPG, PNG</div>
+      </div>
+      <div class="file-info" id="file-info">
+        <span>📄</span>
+        <span id="file-name">—</span>
+        <button class="remove-file" onclick="removeFile()" title="Odebrat">✕</button>
+      </div>
+      <p class="upload-alt">
+        Nemůžete soubor nahrát? Pošlete výplatní pásku emailem na
+        <a href="mailto:info@c1z.cz">info@c1z.cz</a>.
+      </p>
+    </div>
+
+    <!-- PROHLÁŠENÍ -->
+    <div class="declaration-section" id="declaration-section">
+
+      <!-- Upozornění -->
+      <div class="warning-box">
+        <div class="box-title">Upozornění pro zaměstnavatele</div>
+        <p>V souladu s článkem II. bod 5. dohody se do výkazu uvádí řádně vynakládané prostředky na hrubou mzdu (včetně náhrady mzdy za dočasnou PN/karanténu) za uvedený měsíc a řádně odváděné pojistné na sociální zabezpečení a příspěvek na státní politiku zaměstnanosti a pojistné na veřejné zdravotní pojištění, které zaměstnavatel z vyměřovacího základu zaměstnance za uvedený měsíc odvádí. Řádně vynakládanými prostředky na hrubou mzdu se rozumí vyplacení mzdy nebo platu v souladu s ustanovením § 141 odst. 1 zákoníku práce, tj. nejpozději do konce kalendářního měsíce následujícího po měsíci, ve kterém vzniklo zaměstnanci právo na mzdu nebo plat nebo některou jejich složku. Řádně odváděným pojistným na sociální zabezpečení a příspěvek na státní politiku zaměstnanosti se rozumí odvedení pojistného v souladu s ustanovením § 9 odst. 1 zákona o sociálním pojištění, tj. nejpozději do dvacátého dne kalendářního měsíce následujícího po kalendářním měsíci, za který je pojistné odváděno. Řádně odváděným pojistným na veřejné zdravotní pojištění se rozumí odvedení pojistného v souladu s ustanovením § 5 odst. 1 zákona o zdravotním pojištění, tj. nejpozději do dvacátého dne kalendářního měsíce následujícího po kalendářním měsíci, za který je pojistné odváděno.</p>
+        <p style="margin-top:10px;">Pokud zaměstnavatel ve výkazu uvede náklady, které nebyly vynaloženy ve výše uvedených termínech, je povinen vrátit příspěvek podle článku VI. bod 2. dohody.</p>
       </div>
 
-    </div><!-- /two-col -->
-  </div><!-- /form-body -->
+      <!-- Prohlášení zaměstnavatele -->
+      <div class="decl-box">
+        <div class="box-title">Prohlášení zaměstnavatele</div>
+        <p>Na tu část mzdových nákladů, která je hrazena ze mzdového příspěvku, nebudu nárokovat krytí z peněžních prostředků poskytovaných ze státního rozpočtu, rozpočtu územních samosprávných celků, vyšších územních samosprávných celků, Evropských strukturálních a investičních fondů, popř. z jiných programů a projektů EU, ani jiných veřejných zdrojů.</p>
+        <p>Prohlašuji, že výše uvedené údaje jsou pravdivé a že hrubá mzda za uvedený měsíc a v uvedené výši byla zaměstnanci zúčtována k výplatě a po zákonných srážkách vyplacena. Dále prohlašuji, že částka pojistného na sociální zabezpečení, příspěvku na státní politiku zaměstnanosti a pojistného na veřejné zdravotní pojištění, které zaměstnavatel za sebe odvádí z vyměřovacího základu zaměstnance, uvedená v tomto vyúčtování, byla odvedena.</p>
+      </div>
 
-  <!-- UPLOAD VÝPLATNÍ PÁSKY -->
-  <div class="upload-section" id="upload-section">
-    <div class="upload-label-row">
-      <span>Výplatní páska</span>
-      <span class="tooltip-wrap">
-        <i class="tooltip-icon" onclick="toggleTooltip(this)">i</i>
-        <span class="tooltip-box" style="width:240px;">
-          Přetáhněte nebo vyberte soubor PDF, JPG nebo PNG s výplatní páskou zaměstnance.
-          Výplatní pásku můžete případně zaslat emailem na <strong>info@c1z.cz</strong>.
-        </span>
-      </span>
+      <!-- Checkbox -->
+      <div class="checkbox-row">
+        <input type="checkbox" id="souhlas" onchange="toggleSubmit()" />
+        <label for="souhlas">Souhlasím s výše uvedeným upozorněním a stvrzuji platnost prohlášení zaměstnavatele.</label>
+      </div>
+
     </div>
-    <div class="drop-zone" id="drop-zone"
-         ondragover="dzDragOver(event)" ondragleave="dzDragLeave(event)" ondrop="dzDrop(event)">
-      <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png"
-             onchange="dzFileSelected(this.files[0])" />
-      <div class="drop-zone-icon">📎</div>
-      <div class="drop-zone-text"><strong>Přetáhněte soubor sem</strong> nebo klikněte pro výběr</div>
-      <div class="drop-zone-hint">Podporované formáty: PDF, JPG, PNG</div>
+
+    <div class="msg" id="msg"></div>
+
+    <!-- PATIČKA -->
+    <div class="form-footer" id="form-footer">
+      <p class="confirm-text">
+        Odesláním potvrzuji, že všechny výše uvedené údaje jsou pravdivé a úplné a že jsem oprávněn/a jednat jménem zaměstnavatele.
+      </p>
+      <div class="footer-btns">
+        <button class="btn btn-secondary" id="btn-reset">Vymazat</button>
+        <button class="btn btn-primary" id="btn-submit" disabled>
+          <span id="submit-label">Potvrzuji a odesílám údaje</span>
+          <div class="spinner" id="submit-spinner"></div>
+        </button>
+      </div>
     </div>
-    <div class="file-info" id="file-info">
-      <span>📄</span>
-      <span id="file-name">—</span>
-      <button class="remove-file" onclick="removeFile()" title="Odebrat">✕</button>
+
+    <!-- ÚSPĚŠNÁ OBRAZOVKA -->
+    <div class="success-screen" id="success-screen">
+      <div class="check">✅</div>
+      <h2>Údaje byly odeslány</h2>
+      <p id="success-text">
+        Děkujeme za zadání údajů.<br/>
+        Potvrzení jsme odeslali na vaši e-mailovou adresu.<br/>
+        Po kontrole údajů vás budeme informovat o výsledku.
+      </p>
     </div>
-    <p class="upload-alt">
-      Nemůžete soubor nahrát? Pošlete výplatní pásku emailem na
-      <a href="mailto:info@c1z.cz">info@c1z.cz</a>.
-    </p>
+
+  </div><!-- /form-card -->
+
+  <!-- EU LOGO PATIČKA -->
+  <div class="eu-footer">
+    <div class="eu-footer-logo">
+      <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" rx="4" fill="#003399"/>
+        <g fill="#FFCC00">
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(0,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(30,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(60,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(90,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(120,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(150,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(180,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(210,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(240,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(270,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(300,50,50)"/>
+          <polygon points="50,10 52,16 58,16 53,20 55,26 50,22 45,26 47,20 42,16 48,16" transform="rotate(330,50,50)"/>
+        </g>
+      </svg>
+      <div class="eu-footer-text">
+        <strong>Spolufinancováno</strong>
+        Evropskou unií
+      </div>
+    </div>
   </div>
 
-  <div class="msg" id="msg"></div>
-
-  <!-- PATIČKA -->
-  <div class="form-footer" id="form-footer">
-    <button class="btn btn-secondary" id="btn-reset">Vymazat</button>
-    <button class="btn btn-primary" id="btn-submit">
-      <span id="submit-label">Odeslat údaje</span>
-      <div class="spinner" id="submit-spinner"></div>
-    </button>
-  </div>
-
-  <!-- ÚSPĚŠNÁ OBRAZOVKA -->
-  <div class="success-screen" id="success-screen">
-    <div class="check">✅</div>
-    <h2>Údaje byly odeslány</h2>
-    <p id="success-text">
-      Děkujeme za zadání údajů.<br/>
-      Potvrzení jsme odeslali na vaši e-mailovou adresu.<br/>
-      Po kontrole údajů vás budeme informovat o výsledku.
-    </p>
-  </div>
-
-</div><!-- /form-card -->
 </div><!-- /wrapper -->
 
 <script>
@@ -407,25 +588,17 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6iOxoSAKYIH4G3h0w-ITnrVcc75eeRKVRX17FBI0x7xrD8Hf7Xq6BFWVWxe-vaQiA/exec';
 
 // ============================================================
-//  Data ze sessionStorage (nastavena po OTP ověření)
+//  Data ze sessionStorage
 // ============================================================
 const employerData = JSON.parse(sessionStorage.getItem('employerData') || 'null');
 const authToken    = sessionStorage.getItem('authToken') || '';
-if (!authToken || !employerData) {
-  window.location.href = 'index.html';
-}
+if (!authToken || !employerData) window.location.href = 'index.html';
 
-// Zobraz předvyplněná data
 function setField(id, val) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (val && val.toString().trim()) {
-    el.textContent = val;
-    el.classList.remove('empty');
-  } else {
-    el.textContent = '—';
-    el.classList.add('empty');
-  }
+  if (val && val.toString().trim()) { el.textContent = val; el.classList.remove('empty'); }
+  else { el.textContent = '—'; el.classList.add('empty'); }
 }
 setField('disp-name',        employerData.employerName);
 setField('disp-ico',         employerData.ico);
@@ -435,18 +608,25 @@ setField('disp-zamestnanec', employerData.zamestnanec);
 setField('disp-id',          employerData.idZamestnanec);
 
 // ============================================================
-//  Automatický výpočet součtu
+//  Výpočet součtu
 // ============================================================
 ['hruba-mzda', 'odvod', 'nahrada-pn'].forEach(id =>
   document.getElementById(id).addEventListener('input', recalc)
 );
-
 function recalc() {
   const h = parseFloat(document.getElementById('hruba-mzda').value) || 0;
   const o = parseFloat(document.getElementById('odvod').value)       || 0;
   const n = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
   document.getElementById('soucet-value').textContent =
     (h + o + n).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kč';
+}
+
+// ============================================================
+//  Checkbox — aktivace tlačítka
+// ============================================================
+function toggleSubmit() {
+  document.getElementById('btn-submit').disabled =
+    !document.getElementById('souhlas').checked;
 }
 
 // ============================================================
@@ -462,7 +642,7 @@ function validate() {
   });
   return ok;
 }
-document.querySelectorAll('input, select').forEach(el => {
+document.querySelectorAll('input:not([type=checkbox]):not([type=file]), select').forEach(el => {
   el.addEventListener('input',  () => el.classList.remove('invalid'));
   el.addEventListener('change', () => el.classList.remove('invalid'));
 });
@@ -471,21 +651,13 @@ document.querySelectorAll('input, select').forEach(el => {
 //  Upload výplatní pásky
 // ============================================================
 let selectedFile = null;
-
 function dzDragOver(e)  { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
 function dzDragLeave()  { document.getElementById('drop-zone').classList.remove('drag-over'); }
-function dzDrop(e) {
-  e.preventDefault(); dzDragLeave();
-  const file = e.dataTransfer.files[0];
-  if (file) dzFileSelected(file);
-}
+function dzDrop(e) { e.preventDefault(); dzDragLeave(); const f = e.dataTransfer.files[0]; if (f) dzFileSelected(f); }
 function dzFileSelected(file) {
   if (!file) return;
   const ext = file.name.split('.').pop().toLowerCase();
-  if (!['pdf','jpg','jpeg','png'].includes(ext)) {
-    showMsg('error', 'Nepodporovaný formát. Použijte PDF, JPG nebo PNG.');
-    return;
-  }
+  if (!['pdf','jpg','jpeg','png'].includes(ext)) { showMsg('error', 'Nepodporovaný formát. Použijte PDF, JPG nebo PNG.'); return; }
   if (file.size > 20 * 1024 * 1024) { showMsg('error', 'Soubor je příliš velký (max. 20 MB).'); return; }
   selectedFile = file;
   document.getElementById('drop-zone').classList.add('has-file');
@@ -499,29 +671,51 @@ function removeFile() {
   document.getElementById('file-info').classList.remove('visible');
   document.getElementById('file-input').value = '';
 }
-async function uploadFileToGDrive(file, meta) {
+
+async function uploadToDrive(base64, filename, mimeType, ico, obdobiStr) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    body: JSON.stringify({ action: 'uploadPaySlip', filename, mimeType, data: base64, ico, obdobiStr })
+  });
+  return res.json();
+}
+
+async function fileToBase64(file) {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target.result.split(',')[1];
-      try {
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          redirect: 'follow',
-          body: JSON.stringify({
-            action:    'uploadPaySlip',
-            filename:  file.name,
-            mimeType:  file.type || 'application/octet-stream',
-            data:      base64,
-            ico:       meta.ico,
-            obdobiStr: meta.obdobiStr
-          })
-        });
-        resolve(await res.json());
-      } catch (err) { reject(err); }
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+// ============================================================
+//  Generování PDF z formuláře
+// ============================================================
+async function generateFormPDF(ico, obdobiStr) {
+  // Dočasně skryjeme interaktivní prvky pro čistší PDF
+  const hideIds = ['upload-section', 'declaration-section', 'form-footer', 'msg'];
+  hideIds.forEach(id => { const el = document.getElementById(id); if (el) el.style.visibility = 'hidden'; });
+
+  const element = document.getElementById('form-card');
+  const opt = {
+    margin:      [8, 8, 8, 8],
+    filename:    'Vykaz_' + String(ico).replace(/\D/g,'') + '_' + obdobiStr.replace('/','_') + '.pdf',
+    image:       { type: 'jpeg', quality: 0.92 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+
+  hideIds.forEach(id => { const el = document.getElementById(id); if (el) el.style.visibility = ''; });
+
+  // Převod blobu na base64
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(pdfBlob);
   });
 }
 
@@ -533,77 +727,83 @@ document.getElementById('btn-submit').addEventListener('click', submitForm);
 async function submitForm() {
   clearMsg();
   if (!validate()) { showMsg('error', 'Vyplňte prosím všechna povinná pole označená *.'); return; }
+  if (!document.getElementById('souhlas').checked) { showMsg('error', 'Zaškrtněte prosím souhlas s prohlášením.'); return; }
 
-  const mesicNum = document.getElementById('mesic').value;
-  const rok      = document.getElementById('rok').value;
-  const hruba    = parseFloat(document.getElementById('hruba-mzda').value) || 0;
-  const odvod    = parseFloat(document.getElementById('odvod').value)       || 0;
-  const nahrada  = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
-  const soucet   = hruba + odvod + nahrada;
+  const mesicNum     = document.getElementById('mesic').value;
+  const rok          = document.getElementById('rok').value;
+  const hruba        = parseFloat(document.getElementById('hruba-mzda').value) || 0;
+  const odvod        = parseFloat(document.getElementById('odvod').value)       || 0;
+  const nahrada      = parseFloat(document.getElementById('nahrada-pn').value)  || 0;
+  const soucet       = hruba + odvod + nahrada;
   const vylouceneDny = parseInt(document.getElementById('vyloucene-dny').value) || 0;
   const obdobiStr    = ('0' + mesicNum).slice(-2) + '/' + rok;
+  const icoStr       = String(employerData.ico || '');
 
   const payload = {
-    action:         'submitForm',
-    token:          authToken,
-    employerName:   employerData.employerName  || '',
-    ico:            employerData.ico           || '',
-    accountNumber:  employerData.accountNumber || '',
-    cisloDohody:    employerData.cisloDohody   || '',
-    zamestnanec:    employerData.zamestnanec   || '',
-    idZamestnanec:  employerData.idZamestnanec || '',
-    email:          employerData.email         || '',
-    mesicCislo:     mesicNum,
-    rok,
-    hrubaMzda:      hruba,
-    odvodPojistneho: odvod,
-    nahradaPN:      nahrada,
-    soucet,
-    vylouceneDny,
-    driveUrl:       ''
+    action: 'submitForm', token: authToken,
+    employerName:    employerData.employerName  || '',
+    ico:             employerData.ico           || '',
+    accountNumber:   employerData.accountNumber || '',
+    cisloDohody:     employerData.cisloDohody   || '',
+    zamestnanec:     employerData.zamestnanec   || '',
+    idZamestnanec:   employerData.idZamestnanec || '',
+    email:           employerData.email         || '',
+    mesicCislo: mesicNum, rok,
+    hrubaMzda: hruba, odvodPojistneho: odvod, nahradaPN: nahrada, soucet, vylouceneDny,
+    driveUrl: '', pdfUrl: ''
   };
 
   setSubmitLoading(true);
 
   try {
-    // Nahrání výplatní pásky (nepovinné)
+    // 1. Nahrání výplatní pásky (nepovinné)
     if (selectedFile) {
       showMsg('info', '⏫ Nahrávám výplatní pásku…');
       try {
-        const uploadRes = await uploadFileToGDrive(selectedFile, { ico: payload.ico, obdobiStr });
-        if (uploadRes.success) {
-          payload.driveUrl = uploadRes.url || '';
-        } else {
-          const pokracovat = window.confirm(
-            'Nahrání výplatní pásky se nezdařilo: ' + (uploadRes.error || 'neznámá chyba') +
-            '\n\nChcete odeslat formulář bez výplatní pásky?'
-          );
-          if (!pokracovat) { setSubmitLoading(false); clearMsg(); return; }
+        const b64 = await fileToBase64(selectedFile);
+        const up  = await uploadToDrive(b64, selectedFile.name, selectedFile.type || 'application/octet-stream', icoStr, obdobiStr);
+        if (up.success) payload.driveUrl = up.url || '';
+        else {
+          if (!window.confirm('Nahrání výplatní pásky se nezdařilo.\n\nChcete pokračovat bez ní?')) {
+            setSubmitLoading(false); clearMsg(); return;
+          }
         }
-      } catch (uploadErr) {
-        const pokracovat = window.confirm(
-          'Nahrání výplatní pásky se nezdařilo (chyba připojení).' +
-          '\n\nChcete odeslat formulář bez výplatní pásky?'
-        );
-        if (!pokracovat) { setSubmitLoading(false); clearMsg(); return; }
+      } catch (e) {
+        if (!window.confirm('Chyba při nahrávání výplatní pásky.\n\nChcete pokračovat bez ní?')) {
+          setSubmitLoading(false); clearMsg(); return;
+        }
       }
-      clearMsg();
     }
 
+    // 2. Generování PDF formuláře
+    showMsg('info', '📄 Generuji PDF formuláře…');
+    try {
+      const pdfB64   = await generateFormPDF(icoStr, obdobiStr);
+      const pdfName  = 'Vykaz_' + icoStr.replace(/\D/g,'') + '_' + obdobiStr.replace('/','-') + '.pdf';
+      const pdfUp    = await uploadToDrive(pdfB64, pdfName, 'application/pdf', icoStr, obdobiStr);
+      if (pdfUp.success) payload.pdfUrl = pdfUp.url || '';
+    } catch (e) {
+      // PDF se nepodařilo — pokračujeme bez něj
+      console.warn('PDF generování selhalo:', e);
+    }
+
+    clearMsg();
+
+    // 3. Odeslání dat formuláře
     const res = await apiFetch(payload);
     if (!res.success) { showMsg('error', res.error || 'Odeslání se nezdařilo. Zkuste to znovu.'); return; }
 
-    // Úspěšná obrazovka
-    const finalObdobiStr = res.obdobiStr || obdobiStr;
+    // Úspěch
+    const finalStr = res.obdobiStr || obdobiStr;
     document.getElementById('success-text').innerHTML =
-      'Dkujeme za zad\u00e1n\u00ed \u00fadaj\u016f za obdob\u00ed <strong>' + finalObdobiStr + '</strong>.<br/>' +
+      'D\u011bkujeme za zad\u00e1n\u00ed \u00fadaj\u016f za obdob\u00ed <strong>' + finalStr + '</strong>.<br/>' +
       'Potvrzen\u00ed jsme odeslali na Va\u0161i e-mailovou adresu.<br/>' +
       'Po kontrole \u00fadaj\u016f v\u00e1s budeme informovat o v\u00fdsledku.';
 
-    document.getElementById('form-body').style.display    = 'none';
-    document.getElementById('upload-section').style.display = 'none';
-    document.getElementById('form-footer').style.display  = 'none';
-    document.getElementById('msg').style.display          = 'none';
+    ['form-body','upload-section','declaration-section','form-footer','msg'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
     document.getElementById('success-screen').style.display = 'block';
     sessionStorage.clear();
 
@@ -619,15 +819,15 @@ async function submitForm() {
 // ============================================================
 document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('Opravdu chcete vymazat vyplněná pole?')) return;
-  ['hruba-mzda', 'odvod', 'nahrada-pn', 'vyloucene-dny'].forEach(id => {
+  ['hruba-mzda','odvod','nahrada-pn','vyloucene-dny'].forEach(id => {
     document.getElementById(id).value = '';
     document.getElementById(id).classList.remove('invalid');
   });
-  document.getElementById('mesic').value = '';
-  document.getElementById('rok').value   = '';
-  removeFile();
-  recalc();
-  clearMsg();
+  document.getElementById('mesic').value   = '';
+  document.getElementById('rok').value     = '';
+  document.getElementById('souhlas').checked = false;
+  toggleSubmit();
+  removeFile(); recalc(); clearMsg();
 });
 
 // ============================================================
@@ -635,12 +835,11 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 // ============================================================
 function toggleTooltip(icon) {
   const wrap = icon.closest('.tooltip-wrap');
-  wrap.classList.toggle('open');
+  const wasOpen = wrap.classList.contains('open');
+  document.querySelectorAll('.tooltip-wrap.open').forEach(w => w.classList.remove('open'));
+  if (!wasOpen) wrap.classList.add('open');
   document.addEventListener('click', function handler(e) {
-    if (!wrap.contains(e.target)) {
-      wrap.classList.remove('open');
-      document.removeEventListener('click', handler);
-    }
+    if (!wrap.contains(e.target)) { wrap.classList.remove('open'); document.removeEventListener('click', handler); }
   });
 }
 
@@ -649,20 +848,15 @@ function toggleTooltip(icon) {
 // ============================================================
 function showMsg(type, text) {
   const el = document.getElementById('msg');
-  el.className = 'msg ' + type;
-  el.textContent = text;
+  el.className = 'msg ' + type; el.textContent = text;
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function clearMsg() { const el = document.getElementById('msg'); el.className = 'msg'; el.textContent = ''; }
 function setSubmitLoading(on) {
-  document.getElementById('btn-submit').disabled = on;
+  document.getElementById('btn-submit').disabled = on || !document.getElementById('souhlas').checked;
   document.getElementById('submit-label').style.display   = on ? 'none' : 'inline';
   document.getElementById('submit-spinner').style.display = on ? 'block' : 'none';
 }
-
-// ============================================================
-//  API volání
-// ============================================================
 async function apiFetch(params) {
   const url = new URL(APPS_SCRIPT_URL);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
