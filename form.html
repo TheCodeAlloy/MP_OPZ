@@ -419,7 +419,7 @@
               </span>
             </label>
             <div class="input-kc">
-              <input type="number" id="hruba-mzda" placeholder="0" min="0" step="0.01" inputmode="decimal" />
+              <input type="number" id="hruba-mzda" placeholder="0" min="0" step="1" inputmode="decimal" />
               <span class="suffix">Kč</span>
             </div>
           </div>
@@ -434,7 +434,7 @@
               </span>
             </label>
             <div class="input-kc">
-              <input type="number" id="odvod" placeholder="0" min="0" step="0.01" inputmode="decimal" />
+              <input type="number" id="odvod" placeholder="0" min="0" step="1" inputmode="decimal" />
               <span class="suffix">Kč</span>
             </div>
           </div>
@@ -449,7 +449,7 @@
               </span>
             </label>
             <div class="input-kc">
-              <input type="number" id="nahrada-pn" placeholder="0" min="0" step="0.01" inputmode="decimal" />
+              <input type="number" id="nahrada-pn" placeholder="0" min="0" step="1" inputmode="decimal" />
               <span class="suffix">Kč</span>
             </div>
           </div>
@@ -692,9 +692,13 @@ async function fileToBase64(file) {
 // ============================================================
 async function generateFormPDF(ico, obdobiStr) {
   // Dočasně skryjeme interaktivní prvky pro čistší PDF
-  const hideIds = ['upload-section', 'declaration-section', 'form-footer', 'msg'];
+  // V PDF skryjeme jen interaktivní prvky — prohlášení a formulář zůstanou
+  const hideIds = ['form-footer', 'msg', 'drop-zone', 'file-info', 'upload-alt'];
   const origDisplay = {};
   hideIds.forEach(id => { const el = document.getElementById(id); if (el) { origDisplay[id] = el.style.display; el.style.display = 'none'; } });
+  // Upload section zobrazíme ale jako info (bez interaktivních prvků)
+  const uploadLabel = document.querySelector('.upload-label-row');
+  const origUlDisplay = uploadLabel ? uploadLabel.parentElement.style.display : '';
 
   const element = document.getElementById('form-card');
   const opt = {
